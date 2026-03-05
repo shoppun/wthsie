@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WTHSIE">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WTHSIE</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111110;
+  --surface: #161614;
+  --surface2: #1d1d1b;
+  --surface3: #252523;
+  --accent: #e8ff47;
+  --accent-dim: rgba(232,255,71,0.12);
+  --accent-glow: rgba(232,255,71,0.06);
+  --meat-color: #ff6b35;
+  --meat-dim: rgba(255,107,53,0.12);
+  --vegi-color: #4ade80;
+  --vegi-dim: rgba(74,222,128,0.12);
+  --fit-color: #38bdf8;
+  --fit-dim: rgba(56,189,248,0.12);
+  --text: #f5f4ef;
+  --text-mid: #a09e96;
+  --text-muted: #585752;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(232,255,71,0.25);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ─── GRADIENT BLOBS ─── */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(232,255,71,0.04) 0%, transparent 70%);
+  top: -200px; right: -100px;
+}
+.blob-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255,107,53,0.03) 0%, transparent 70%);
+  bottom: 10%; left: -150px;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 14px;
+}
+
+.logo-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logo-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.logo-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.logo-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fav-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.fav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.fav-btn.is-active { background: var(--accent); color: #0a0a0a; border-color: var(--accent); font-weight: 700; }
+
+.fav-badge {
+  background: rgba(255,255,255,0.15);
+  color: inherit;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.fav-btn.is-active .fav-badge { background: rgba(0,0,0,0.2); }
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.type-toggle {
+  display: flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.type-btn {
+  padding: 7px 16px;
+  border-radius: 40px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.type-btn:hover { color: var(--text); }
+.type-btn.t-all.active { background: var(--surface3); color: var(--text); }
+.type-btn.t-meat.active { background: var(--meat-color); color: white; }
+.type-btn.t-vegi.active { background: var(--vegi-color); color: #0a0a0a; font-weight: 600; }
+.type-btn.t-fit.active { background: var(--fit-color); color: #0a0a0a; font-weight: 600; }
+
+/* FITNESS BANNER */
+.fit-banner {
+  background: linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(56,189,248,0.03) 100%);
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.fit-banner-icon { font-size: 28px; flex-shrink: 0; }
+.fit-banner-text { flex: 1; min-width: 160px; }
+.fit-banner-title { font-size: 13px; font-weight: 700; color: var(--fit-color); margin-bottom: 2px; letter-spacing: 0.3px; }
+.fit-banner-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.fit-banner-stats { display: flex; gap: 12px; flex-shrink: 0; }
+.fit-stat { text-align: center; }
+.fit-stat-val { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; color: var(--accent); line-height: 1; }
+.fit-stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* FITNESS CARD MACROS */
+.macro-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.macro-pill { flex: 1; background: var(--surface2); border-radius: 8px; padding: 5px 6px; text-align: center; }
+.macro-val { font-size: 13px; font-weight: 700; color: var(--fit-color); line-height: 1; }
+.macro-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+.macro-val.protein { color: var(--accent); }
+.tag-fit { background: var(--fit-dim); color: var(--fit-color); border: 1px solid rgba(56,189,248,0.2); }
+
+/* MODAL MACRO BOX */
+.modal-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.modal-macro-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 12px 8px; text-align: center; }
+.modal-macro-val { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.modal-macro-val.prot { color: var(--accent); }
+.modal-macro-val.kcal { color: var(--fit-color); }
+.modal-macro-val.carb { color: #fb923c; }
+.modal-macro-val.fat { color: #a78bfa; }
+.modal-macro-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+/* MEAL TABS */
+.meal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 4px;
+  width: fit-content;
+}
+.meal-tab {
+  padding: 10px 24px;
+  border-radius: 40px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+.meal-tab:hover { color: var(--text); }
+#mtab-fruehstueck.active { background: #f59e0b; color: #0a0a0a; }
+#mtab-abendessen.active { background: #6366f1; color: white; }
+.type-btn.t-meal.active { background: #f59e0b; color: #0a0a0a; font-weight: 600; }
+
+.search-box {
+  flex: 1;
+  min-width: 180px;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px 10px 40px;
+  border-radius: 40px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: rgba(232,255,71,0.3); background: var(--surface3); }
+
+.shuffle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--accent);
+  border: none;
+  color: #0a0a0a;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+.shuffle-btn:hover { background: #d4ea2f; transform: scale(1.03); }
+.shuffle-btn:active { transform: scale(0.97); }
+
+/* ─── RESULTS BAR ─── */
+.results-bar {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.results-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.results-count strong { color: var(--text); font-size: 14px; }
+
+/* ─── MAIN LAYOUT ─── */
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── RECIPE GRID ─── */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
+}
+
+/* ─── RECIPE CARD ─── */
+.recipe-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  group: true;
+}
+
+.recipe-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent-glow), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.recipe-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,255,71,0.1);
+}
+
+.recipe-card:hover::after { opacity: 1; }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.card-emoji-wrap {
+  width: 52px;
+  height: 52px;
+  background: var(--surface2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.card-fav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: all 0.2s;
+  line-height: 1;
+  padding: 2px;
+  position: relative;
+  z-index: 2;
+}
+
+.card-fav-btn:hover, .card-fav-btn.fav-on { opacity: 1; transform: scale(1.2); }
+
+.card-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-cuisine {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-meat { background: var(--meat-dim); color: var(--meat-color); border: 1px solid rgba(255,107,53,0.2); }
+.tag-vegi { background: var(--vegi-dim); color: var(--vegi-color); border: 1px solid rgba(74,222,128,0.2); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+
+.empty-emoji { font-size: 72px; margin-bottom: 20px; }
+.empty-state h3 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--text); margin-bottom: 8px; }
+
+/* ─── SHUFFLE OVERLAY ─── */
+.shuffle-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: #0a0a0a;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.shuffle-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+.shuffle-ring {
+  width: 100px;
+  height: 100px;
+  border: 3px solid var(--surface3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.shuffle-emoji-spin {
+  position: absolute;
+  font-size: 48px;
+  animation: counterSpin 0.7s linear infinite;
+}
+
+.shuffle-label {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 28px;
+  color: var(--text-mid);
+  letter-spacing: 1px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes counterSpin { to { transform: rotate(-360deg); } }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.modal-overlay.open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 40px;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal {
+  width: 100%;
+  max-width: 620px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  overflow: hidden;
+  animation: slideUp 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* MODAL HERO */
+.modal-hero {
+  padding: 32px 32px 28px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+}
+
+.modal-close:hover { background: var(--surface3); color: var(--text); }
+
+.modal-emoji-big {
+  font-size: 56px;
+  margin-bottom: 14px;
+  display: block;
+  line-height: 1;
+}
+
+.modal-dish-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 5vw, 38px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  letter-spacing: -0.5px;
+}
+
+.modal-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.modal-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.modal-tag-time { background: var(--surface3); color: var(--text-mid); }
+.modal-tag-cuisine { background: var(--surface3); color: var(--text-mid); }
+
+/* MODAL BODY */
+.modal-body { padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+/* PERSONS */
+.persons-row {
+  display: flex;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  gap: 16px;
+}
+
+.persons-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.persons-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.p-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface3);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+  line-height: 1;
+}
+
+.p-btn:hover { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
+
+.p-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--accent);
+  min-width: 32px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* SECTION HEADERS */
+.section-head {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* INGREDIENTS */
+.ingredients-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ing-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.ing-item:hover { border-color: rgba(232,255,71,0.15); }
+
+.ing-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.ing-name { flex: 1; color: var(--text); font-weight: 400; }
+
+.ing-qty {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* STEPS */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.step-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-mid);
+  font-weight: 400;
+}
+
+/* SHOPPING LIST */
+.shop-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.shop-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--accent);
+  border: none;
+  color: #0a0a0a;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+}
+
+.copy-btn:hover { background: #d4ea2f; }
+.copy-btn.done { background: var(--vegi-color); }
+
+.shop-preview {
+  padding: 16px 18px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.9;
+  max-height: 130px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* FAV BTN IN MODAL */
+.modal-fav-toggle {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text-mid);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-fav-toggle:hover { border-color: rgba(232,255,71,0.3); color: var(--text); }
+.modal-fav-toggle.on { background: var(--accent-dim); border-color: rgba(232,255,71,0.3); color: var(--accent); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
+
+/* VIEW SECTIONS */
+.view { display: none; }
+.view.active { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .header-inner { padding: 0 16px; }
+  main { padding: 20px 16px 60px; }
+  .results-bar { padding: 10px 16px; }
+  .ingredients-grid { grid-template-columns: 1fr; }
+  .modal-overlay { padding: 10px; padding-top: 16px; }
+  .modal-body { padding: 20px; }
+  .modal-hero { padding: 24px 20px 20px; }
+  .modal-close { top: 14px; right: 14px; }
+  .controls { gap: 6px; }
+  .type-btn { padding: 6px 11px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- SHUFFLE OVERLAY -->
+<div class="shuffle-overlay" id="shuffleOverlay">
+  <div style="position:relative; display:flex; align-items:center; justify-content:center; width:100px; height:100px;">
+    <div class="shuffle-ring"></div>
+    <span class="shuffle-emoji-spin">🍽️</span>
+  </div>
+  <div class="shuffle-label">Würfeln…</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalInner"></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo-wrap">
+        <div class="logo-title">W<em>T</em>HSIE</div>
+        <div class="logo-sub">What The Hell Should I Eat</div>
+      </div>
+      <div class="header-right">
+        <button class="fav-btn" id="favBtn" onclick="toggleFavsView()">
+          <span>⭐</span>
+          <span>Favoriten</span>
+          <span class="fav-badge" id="favBadge">0</span>
+        </button>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="type-toggle">
+        <button class="type-btn t-all active" id="btn-all" onclick="setFilter('all')">Alle</button>
+        <button class="type-btn t-meat" id="btn-meat" onclick="setFilter('meat')">🥩 Fleisch</button>
+        <button class="type-btn t-vegi" id="btn-vegi" onclick="setFilter('vegi')">🥦 Vegi</button>
+        <button class="type-btn t-fit" id="btn-fit" onclick="setFilter('fit')">💪 Fitness</button>
+        <button class="type-btn t-meal" id="btn-meal" onclick="setFilter('meal')">🍽️ Mahlzeiten</button>
+      </div>
+      <div class="search-box">
+        <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="searchInput" placeholder="Gericht oder Zutat suchen…" oninput="handleSearch()">
+      </div>
+      <button class="shuffle-btn" onclick="doShuffle()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+        Surprise me
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- RESULTS BAR -->
+<div class="results-bar">
+  <div class="results-count"><strong id="countNum">0</strong> Gerichte</div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="view active" id="browseView">
+    <div class="recipe-grid" id="recipeGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="empty-emoji">🤷</div>
+      <h3>Nichts gefunden</h3>
+      <p style="margin-top:6px">Versuch einen anderen Begriff</p>
+    </div>
+  </div>
+  <div class="view" id="favsView">
+    <div class="recipe-grid" id="favGrid"></div>
+    <div class="empty-state" id="noFavsMsg" style="display:none">
+      <div class="empty-emoji">⭐</div>
+      <h3>Noch keine Favoriten</h3>
+      <p style="margin-top:6px">Klick das ☆ auf einer Karte um Gerichte zu speichern</p>
+    </div>
+  </div>
+  <div class="view" id="fitView">
+    <div class="fit-banner">
+      <div class="fit-banner-icon">⚡</div>
+      <div class="fit-banner-text">
+        <div class="fit-banner-title">DEIN FITNESS-PROFIL · 58kg · 174cm</div>
+        <div class="fit-banner-sub">Alle Gerichte haben min. 30g Protein pro Portion. Perfekt für Muskelaufbau & lean bleiben.</div>
+      </div>
+      <div class="fit-banner-stats">
+        <div class="fit-stat"><div class="fit-stat-val">130g+</div><div class="fit-stat-lbl">Protein/Tag Ziel</div></div>
+        <div class="fit-stat"><div class="fit-stat-val">2000</div><div class="fit-stat-lbl">kcal Ziel</div></div>
+      </div>
+    </div>
+    <div class="recipe-grid" id="fitGrid"></div>
+  </div>
+  <div class="view" id="mealView">
+    <div class="meal-tabs">
+      <button class="meal-tab active" id="mtab-fruehstueck" onclick="setMealTab('fruehstueck')">☀️ Frühstück</button>
+      <button class="meal-tab" id="mtab-abendessen" onclick="setMealTab('abendessen')">🌙 Abendessen</button>
+    </div>
+    <div class="recipe-grid" id="mealGrid"></div>
+  </div>
+</main>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+const R = [
+  {id:1,name:"Wiener Schnitzel",emoji:"🥩",cuisine:"Österreichisch",type:"meat",time:30,
+   ing:[{n:"Kalbfleisch",u:"g",p:180},{n:"Eier",u:"Stk",p:1},{n:"Semmelbrösel",u:"g",p:80},{n:"Mehl",u:"g",p:50},{n:"Butterschmalz",u:"EL",p:3},{n:"Zitrone",u:"Stk",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Fleisch zwischen Klarsichtfolie dünn klopfen (ca. 4mm).", "Mit Salz und Pfeffer würzen, in Mehl wenden.", "Durch verquirltes Ei ziehen, danach in Semmelbröseln wenden.", "Butterschmalz in großer Pfanne erhitzen bis es leicht raucht.", "Schnitzel einlegen, Pfanne schwenken damit Fett über das Fleisch schwappt.", "Ca. 2–3 Min pro Seite goldbraun braten bis Panade souffliert.", "Auf Küchenpapier abtropfen, mit Zitronenscheibe servieren."]},
+
+  {id:2,name:"Gulasch",emoji:"🍲",cuisine:"Österreichisch",type:"meat",time:60,
+   ing:[{n:"Rindfleisch",u:"g",p:200},{n:"Zwiebeln",u:"Stk",p:1.5},{n:"Paprikapulver",u:"EL",p:1},{n:"Tomatenmark",u:"EL",p:1},{n:"Rindsuppe",u:"ml",p:200},{n:"Majoran",u:"TL",p:0.5},{n:"Kümmel",u:"TL",p:0.5},{n:"Öl",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Zwiebeln fein würfeln, in heißem Öl glasig dünsten bis goldbraun.", "Fleisch in Würfel schneiden, kurz anbraten.", "Paprikapulver und Tomatenmark einrühren, 1 Min rösten.", "Mit Rindsuppe aufgießen, Majoran und Kümmel hinzufügen.", "Bei kleiner Hitze 45–50 Min schmoren bis Fleisch weich.", "Mit Salz und Pfeffer abschmecken, mit Semmelknödel servieren."]},
+
+  {id:3,name:"Kaiserschmarrn",emoji:"🥞",cuisine:"Österreichisch",type:"vegi",time:25,
+   ing:[{n:"Eier",u:"Stk",p:2},{n:"Milch",u:"ml",p:100},{n:"Mehl",u:"g",p:80},{n:"Zucker",u:"EL",p:2},{n:"Butter",u:"EL",p:2},{n:"Rosinen",u:"g",p:30},{n:"Staubzucker",u:"EL",p:1}],
+   steps:["Eier trennen, Eiweiß mit Prise Salz steif schlagen.", "Eigelb mit Zucker, Milch und Mehl zu glattem Teig verrühren.", "Eischnee vorsichtig unterheben.", "Butter in Pfanne schmelzen, Teig hineingiessen, Rosinen verteilen.", "Bei mittlerer Hitze stocken lassen, dann wenden und fertig backen.", "Mit 2 Gabeln in Stücke reißen, mit Staubzucker bestreuen.", "Mit Zwetschkenröster oder Apfelmus servieren."]},
+
+  {id:4,name:"Zwiebelrostbraten",emoji:"🥩",cuisine:"Österreichisch",type:"meat",time:40,
+   ing:[{n:"Rostbraten",u:"g",p:220},{n:"Zwiebeln",u:"Stk",p:2},{n:"Mehl",u:"EL",p:2},{n:"Öl",u:"EL",p:2},{n:"Rindsuppe",u:"ml",p:100},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Zwiebeln in Ringe schneiden, in Mehl wenden.", "In heißem Öl goldbraun und knusprig frittieren, beiseite stellen.", "Fleisch klopfen, salzen und pfeffern.", "Bei hoher Hitze von beiden Seiten scharf anbraten.", "Mit Suppe ablöschen, kurz einkochen lassen.", "Gebratene Zwiebeln obenauf servieren, mit Erdäpfelwasser reichen."]},
+
+  {id:5,name:"Erdäpfelgulasch",emoji:"🥔",cuisine:"Österreichisch",type:"vegi",time:45,
+   ing:[{n:"Kartoffeln",u:"g",p:300},{n:"Zwiebeln",u:"Stk",p:1},{n:"Paprikapulver",u:"EL",p:2},{n:"Tomatenmark",u:"EL",p:1},{n:"Gemüsebrühe",u:"ml",p:250},{n:"Majoran",u:"TL",p:1},{n:"Öl",u:"EL",p:2}],
+   steps:["Zwiebeln würfeln, in Öl goldbraun rösten.", "Paprikapulver und Tomatenmark einrühren.", "Kartoffeln schälen und würfeln, hinzufügen.", "Mit Gemüsebrühe aufgießen, Majoran dazu.", "30–35 Min köcheln bis Kartoffeln weich sind.", "Nach Bedarf mit Salz, Pfeffer und einem Spritzer Essig abschmecken."]},
+
+  {id:6,name:"Tafelspitz",emoji:"🍖",cuisine:"Österreichisch",type:"meat",time:60,
+   ing:[{n:"Tafelspitz",u:"g",p:250},{n:"Wurzelgemüse",u:"g",p:150},{n:"Zwiebeln",u:"Stk",p:1},{n:"Meerrettich",u:"EL",p:2},{n:"Lorbeerblatt",u:"Stk",p:1},{n:"Salz",u:"TL",p:1}],
+   steps:["Wasser in großem Topf aufkochen, Zwiebel halbiert darin kurz anrösten.", "Fleisch einlegen, Lorbeer und Salz dazu.", "Wurzelgemüse grob schneiden und hinzufügen.", "Bei kleiner Hitze 50–60 Min sanft köcheln.", "Fleisch herausnehmen, gegen die Faser aufschneiden.", "Mit frisch geriebenem Meerrettich, Bouillongemüse und Rösti servieren."]},
+
+  {id:7,name:"Käsespätzle",emoji:"🧀",cuisine:"Deutsch",type:"vegi",time:35,
+   ing:[{n:"Mehl",u:"g",p:200},{n:"Eier",u:"Stk",p:3},{n:"Bergkäse",u:"g",p:150},{n:"Zwiebeln",u:"Stk",p:2},{n:"Butter",u:"EL",p:2},{n:"Milch",u:"ml",p:100},{n:"Salz",u:"TL",p:1}],
+   steps:["Mehl, Eier, Milch und Salz zu zähflüssigem Teig rühren bis er Blasen wirft.", "Salzwasser zum Kochen bringen.", "Teig durch Spätzlehobel oder Sieb ins Wasser schaben.", "Spätzle herausnehmen sobald sie aufschwimmen.", "Zwiebeln in Butter goldbraun karamellisieren.", "In feuerfester Form Spätzle mit geriebenem Bergkäse schichten.", "Im Ofen bei 200°C überbacken bis Käse blubbert, mit Zwiebeln toppen."]},
+
+  {id:8,name:"Bratwurst & Sauerkraut",emoji:"🌭",cuisine:"Deutsch",type:"meat",time:25,
+   ing:[{n:"Bratwurst",u:"Stk",p:2},{n:"Sauerkraut",u:"g",p:200},{n:"Zwiebeln",u:"Stk",p:1},{n:"Speck",u:"g",p:50},{n:"Kümmel",u:"TL",p:0.5},{n:"Öl",u:"EL",p:1}],
+   steps:["Speck und Zwiebeln würfeln, in Öl anschwitzen.", "Sauerkraut hinzufügen, Kümmel dazu, 15 Min dünsten.", "Bratwürste in separater Pfanne von allen Seiten anbraten.", "Mit Senf und Brot servieren."]},
+
+  {id:9,name:"Linseneintopf",emoji:"🫘",cuisine:"Deutsch",type:"vegi",time:45,
+   ing:[{n:"Rote Linsen",u:"g",p:150},{n:"Karotten",u:"Stk",p:2},{n:"Sellerie",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Gemüsebrühe",u:"ml",p:600},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Öl",u:"EL",p:2}],
+   steps:["Gemüse würfeln, Knoblauch hacken.", "In Öl anbraten, Kreuzkümmel hinzufügen.", "Linsen und Brühe einrühren.", "30–35 Min köcheln bis Linsen weich, ggf. pürieren.", "Mit Salz, Pfeffer und Zitronensaft abschmecken."]},
+
+  {id:10,name:"Rouladen",emoji:"🥩",cuisine:"Deutsch",type:"meat",time:60,
+   ing:[{n:"Rinderrouladen",u:"Stk",p:2},{n:"Speck",u:"g",p:60},{n:"Zwiebeln",u:"Stk",p:1},{n:"Senf",u:"EL",p:2},{n:"Gewürzgurken",u:"Stk",p:2},{n:"Rotwein",u:"ml",p:100},{n:"Rinderbrühe",u:"ml",p:200}],
+   steps:["Fleisch klopfen, mit Senf bestreichen.", "Mit Speck, Zwiebelringen und Gurkenstreifen belegen.", "Aufrollen und mit Zahnstochern fixieren.", "Von allen Seiten scharf anbraten.", "Mit Wein ablöschen, Brühe dazu, 45 Min schmoren.", "Bratensaft als Soße einkochen, mit Rotkraut servieren."]},
+
+  {id:11,name:"Spaghetti Carbonara",emoji:"🍝",cuisine:"Italienisch",type:"meat",time:25,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Guanciale/Speck",u:"g",p:80},{n:"Eier",u:"Stk",p:1.5},{n:"Pecorino",u:"g",p:40},{n:"Schwarzer Pfeffer",u:"TL",p:1},{n:"Salz",u:"TL",p:1}],
+   steps:["Pasta in kochendem Salzwasser al dente kochen.", "Guanciale in Streifen in trockener Pfanne knusprig braten.", "Eier mit geriebenem Pecorino und viel schwarzem Pfeffer verrühren.", "Pasta abtropfen, Kochwasser auffangen.", "Pfanne vom Herd, Pasta zum Speck, Ei-Käse-Masse einrühren.", "Schluckweise Kochwasser dazu bis cremige Soße entsteht. Nie erhitzen!"]},
+
+  {id:12,name:"Pizza Margherita",emoji:"🍕",cuisine:"Italienisch",type:"vegi",time:45,
+   ing:[{n:"Pizzateig",u:"g",p:250},{n:"Tomatensoße",u:"EL",p:4},{n:"Mozzarella",u:"g",p:125},{n:"Basilikum",u:"Blätter",p:5},{n:"Olivenöl",u:"EL",p:1}],
+   steps:["Ofen auf 250°C (Ober-/Unterhitze) vorheizen.", "Teig dünn auf bemehlter Fläche ausrollen.", "Mit Tomatensoße bestreichen, Rand frei lassen.", "Mozzarella zerzupfen und verteilen.", "8–10 Min backen bis Rand goldbraun und Käse blubbert.", "Frisches Basilikum und Olivenöl drauf, sofort servieren."]},
+
+  {id:13,name:"Risotto ai Funghi",emoji:"🍄",cuisine:"Italienisch",type:"vegi",time:40,
+   ing:[{n:"Arborio Reis",u:"g",p:90},{n:"Champignons",u:"g",p:150},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Weißwein",u:"ml",p:80},{n:"Gemüsebrühe",u:"ml",p:400},{n:"Parmesan",u:"g",p:40},{n:"Butter",u:"EL",p:2}],
+   steps:["Brühe warm halten. Pilze in Scheiben braten, beiseite stellen.", "Zwiebeln in Butter glasig dünsten.", "Reis einrühren, 2 Min trocken rösten.", "Mit Weißwein ablöschen, einrühren.", "Schöpferweise warme Brühe dazu, immer rühren (ca. 18 Min).", "Pilze unterheben, Parmesan und kalte Butter einrühren für Cremigkeit.", "5 Min ruhen, mit Pfeffer abschmecken."]},
+
+  {id:14,name:"Lasagne al Forno",emoji:"🫕",cuisine:"Italienisch",type:"meat",time:60,
+   ing:[{n:"Lasagneblätter",u:"Stk",p:6},{n:"Hackfleisch",u:"g",p:200},{n:"Tomatensoße",u:"ml",p:300},{n:"Béchamelsoße",u:"ml",p:200},{n:"Parmesan",u:"g",p:60},{n:"Mozzarella",u:"g",p:80},{n:"Zwiebeln",u:"Stk",p:1}],
+   steps:["Hackfleisch mit Zwiebeln anbraten, mit Tomatensoße mischen.", "Béchamel zubereiten: Butter, Mehl, Milch zu glatter Soße.", "Backform mit etwas Fleischsoße bedecken.", "Abwechselnd: Nudelplatten, Fleischsoße, Béchamel, Parmesan.", "Letzte Schicht: Béchamel, Mozzarella, Parmesan.", "Bei 180°C ca. 35 Min backen bis goldbraun.", "10 Min ruhen lassen vor dem Anschneiden."]},
+
+  {id:15,name:"Gnocchi al Pomodoro",emoji:"🥔",cuisine:"Italienisch",type:"vegi",time:35,
+   ing:[{n:"Gnocchi",u:"g",p:250},{n:"Tomaten (dose)",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:2},{n:"Basilikum",u:"Blätter",p:6},{n:"Olivenöl",u:"EL",p:2},{n:"Parmesan",u:"g",p:30}],
+   steps:["Knoblauch in Olivenöl anbraten bis goldgelb.", "Tomaten hinzufügen, 15 Min einkochen lassen.", "Gnocchi in Salzwasser kochen bis sie aufschwimmen.", "Gnocchi in Tomatensoße schwenken.", "Mit Basilikum und Parmesan servieren."]},
+
+  {id:16,name:"Saltimbocca",emoji:"🥩",cuisine:"Italienisch",type:"meat",time:25,
+   ing:[{n:"Kalbsschnitzel",u:"g",p:180},{n:"Salbei",u:"Blätter",p:4},{n:"Parmaschinken",u:"Scheiben",p:3},{n:"Weißwein",u:"ml",p:80},{n:"Butter",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Fleisch klopfen, mit Salbei belegen, Schinken drüber.", "Mit Zahnstocher fixieren.", "In Butter von Schinkenseite 2 Min braten, wenden.", "1 Min fertig braten.", "Wein in die Pfanne, kurz aufkochen, Soße entsteht.", "Sofort servieren."]},
+
+  {id:17,name:"Pesto Pasta",emoji:"🍃",cuisine:"Italienisch",type:"vegi",time:20,
+   ing:[{n:"Pasta",u:"g",p:100},{n:"Pesto Genovese",u:"EL",p:3},{n:"Parmesan",u:"g",p:30},{n:"Pinienkerne",u:"EL",p:1},{n:"Kirschtomaten",u:"Stk",p:5}],
+   steps:["Pasta in gesalzenem Wasser al dente kochen.", "Pinienkerne in trockener Pfanne toasten.", "Pasta abgießen, 2 EL Kochwasser aufheben.", "Pasta mit Pesto und Kochwasser mischen.", "Mit Parmesan, Pinienkernen und halbierten Tomaten servieren."]},
+
+  {id:18,name:"Bruschetta",emoji:"🍅",cuisine:"Italienisch",type:"vegi",time:15,
+   ing:[{n:"Baguette",u:"Scheiben",p:3},{n:"Tomaten",u:"Stk",p:2},{n:"Knoblauch",u:"Zehen",p:1},{n:"Basilikum",u:"Blätter",p:5},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Brot toasten.", "Tomaten würfeln, mit Basilikum, Olivenöl, Salz mischen.", "Noch warmes Brot mit Knoblauchzehe einreiben.", "Tomatenmischung draufgeben, sofort servieren."]},
+
+  {id:19,name:"Chicken Fried Rice",emoji:"🍳",cuisine:"Asiatisch",type:"meat",time:25,
+   ing:[{n:"Gekochter Reis",u:"g",p:200},{n:"Hühnerbrust",u:"g",p:120},{n:"Eier",u:"Stk",p:2},{n:"Frühlingszwiebeln",u:"Stk",p:2},{n:"Sojasoße",u:"EL",p:3},{n:"Sesamöl",u:"TL",p:1},{n:"Tiefkühlgemüse",u:"g",p:100}],
+   steps:["Hähnchen würfeln, in heißem Öl scharf anbraten.", "Gemüse dazu, 2 Min mitbraten.", "Alles an den Pfannenrand schieben, Eier in die Mitte schlagen.", "Eier rühren bis halb gestockt, dann alles vermischen.", "Kalten Reis einrühren, heiß werden lassen.", "Sojasoße und Sesamöl drauf, Frühlingszwiebeln darüber."]},
+
+  {id:20,name:"Pad Thai",emoji:"🍜",cuisine:"Asiatisch",type:"meat",time:30,
+   ing:[{n:"Reisnudeln",u:"g",p:100},{n:"Garnelen/Tofu",u:"g",p:120},{n:"Eier",u:"Stk",p:1},{n:"Sojasprossen",u:"g",p:60},{n:"Erdnüsse",u:"EL",p:2},{n:"Fischsoße",u:"EL",p:2},{n:"Tamarindenpaste",u:"EL",p:1},{n:"Frühlingszwiebeln",u:"Stk",p:2}],
+   steps:["Nudeln 15 Min in warmem Wasser einweichen.", "Soße aus Fischsoße, Tamarinde und Zucker mischen.", "Garnelen in Öl scharf braten, beiseite.", "Ei in die Pfanne, rühren.", "Nudeln dazu, Soße einrühren.", "Garnelen, Sprossen und Frühlingszwiebeln unterheben.", "Mit Erdnüssen und Limette servieren."]},
+
+  {id:21,name:"Chicken Tikka Masala",emoji:"🍛",cuisine:"Indisch",type:"meat",time:45,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Joghurt",u:"EL",p:3},{n:"Tikka-Paste",u:"EL",p:2},{n:"Tomatenkonserve",u:"g",p:200},{n:"Kokosmilch",u:"ml",p:150},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ingwer",u:"cm",p:2},{n:"Basmati Reis",u:"g",p:80}],
+   steps:["Hähnchen in Joghurt und Tikka-Paste marinieren, 20 Min.", "Im Ofen bei 220°C 15 Min backen oder in Pfanne grillen.", "Zwiebeln, Knoblauch, Ingwer anbraten.", "Tikka-Paste einrühren, 2 Min rösten.", "Tomaten und Kokosmilch dazu, 15 Min köcheln.", "Hähnchen einrühren, mit Reis und Naan servieren."]},
+
+  {id:22,name:"Miso Suppe",emoji:"🍵",cuisine:"Japanisch",type:"vegi",time:15,
+   ing:[{n:"Misopaste",u:"EL",p:2},{n:"Dashi/Gemüsebrühe",u:"ml",p:400},{n:"Tofu",u:"g",p:80},{n:"Wakame (Algen)",u:"EL",p:1},{n:"Frühlingszwiebeln",u:"Stk",p:1}],
+   steps:["Brühe erhitzen, nicht kochen.", "Tofu würfeln, Wakame einweichen.", "Misopaste in kleiner Schüssel mit etwas warmer Brühe auflösen.", "Misomischung in Brühe einrühren.", "Tofu und Wakame hinzufügen.", "Mit Frühlingszwiebeln servieren. Nicht mehr kochen!"]},
+
+  {id:23,name:"Gyoza",emoji:"🥟",cuisine:"Japanisch",type:"meat",time:40,
+   ing:[{n:"Gyoza-Teigblätter",u:"Stk",p:12},{n:"Hackfleisch",u:"g",p:150},{n:"Chinakohl",u:"g",p:100},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ingwer",u:"cm",p:1},{n:"Sojasoße",u:"EL",p:2},{n:"Sesamöl",u:"TL",p:1}],
+   steps:["Kohl fein hacken, salzen, 10 Min stehen lassen, ausdrücken.", "Hackfleisch mit Kohl, Knoblauch, Ingwer, Sojasoße und Sesamöl mischen.", "Je 1 TL Füllung auf Teigblatt, Rand befeuchten, falten.", "Öl in Pfanne erhitzen, Gyoza mit Naht oben einsetzen.", "2 Min braten bis Boden goldbraun.", "Wasser eingiessen (Achtung: zischt!), Deckel drauf.", "5 Min dämpfen, Deckel weg, restliches Wasser verdampfen."]},
+
+  {id:24,name:"Kürbis-Curry",emoji:"🎃",cuisine:"Indisch",type:"vegi",time:35,
+   ing:[{n:"Hokkaido-Kürbis",u:"g",p:300},{n:"Kokosmilch",u:"ml",p:200},{n:"Rote Currypaste",u:"EL",p:1.5},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Basmati Reis",u:"g",p:80},{n:"Koriander",u:"Bund",p:0.25}],
+   steps:["Kürbis würfeln (Hokkaido muss nicht geschält werden).", "Zwiebeln und Knoblauch in Öl anbraten.", "Currypaste einrühren, 1 Min rösten.", "Kürbis einrühren, mit Kokosmilch aufgießen.", "20 Min köcheln bis Kürbis weich.", "Mit Reis und frischem Koriander servieren."]},
+
+  {id:25,name:"Ramen",emoji:"🍜",cuisine:"Japanisch",type:"meat",time:50,
+   ing:[{n:"Ramen-Nudeln",u:"g",p:100},{n:"Schweinebauch",u:"g",p:150},{n:"Sojasoße",u:"EL",p:3},{n:"Hühnerbrühe",u:"ml",p:500},{n:"Eier",u:"Stk",p:1},{n:"Nori",u:"Blätter",p:1},{n:"Mais",u:"EL",p:2},{n:"Frühlingszwiebeln",u:"Stk",p:2}],
+   steps:["Ei 7 Min köcheln, abschrecken, in Sojasoße einlegen.", "Schweinebauch in Öl rundum anbraten.", "Mit Brühe ablöschen, 30 Min köcheln.", "Nudeln nach Packungsanweisung kochen.", "Brühe mit Sojasoße abschmecken.", "Nudeln in Schüssel, Brühe drüber, Chashu-Schwein, halbiertes Ei, Nori, Mais, Frühlingszwiebeln."]},
+
+  {id:26,name:"Bibimbap",emoji:"🍚",cuisine:"Koreanisch",type:"meat",time:45,
+   ing:[{n:"Reis",u:"g",p:200},{n:"Rindfleisch",u:"g",p:100},{n:"Spinat",u:"g",p:80},{n:"Möhren",u:"Stk",p:1},{n:"Zucchini",u:"Stk",p:0.5},{n:"Eier",u:"Stk",p:1},{n:"Gochujang",u:"EL",p:1},{n:"Sesamöl",u:"TL",p:1}],
+   steps:["Reis kochen.", "Rindfleisch in Streifen mit Sojasoße, Sesamöl marinieren, braten.", "Jedes Gemüse separat in Öl kurz garen.", "Spiegelei braten.", "Reis in Schüssel, alle Zutaten schön anrichten.", "Gochujang drüber, Sesamöl, vor dem Essen alles vermischen."]},
+
+  {id:27,name:"Veggie Spring Rolls",emoji:"🥢",cuisine:"Asiatisch",type:"vegi",time:30,
+   ing:[{n:"Reispapier",u:"Blätter",p:6},{n:"Glasnudeln",u:"g",p:60},{n:"Karotten",u:"Stk",p:1},{n:"Gurke",u:"Stk",p:0.5},{n:"Avocado",u:"Stk",p:0.5},{n:"Sojasprossen",u:"g",p:50},{n:"Minze",u:"Blätter",p:6},{n:"Sweet-Chili-Soße",u:"EL",p:3}],
+   steps:["Nudeln in heißem Wasser einweichen, abgießen.", "Gemüse in feine Streifen schneiden.", "Reispapier kurz in warmem Wasser einweichen bis weich.", "Zutaten mittig auf Papier häufen.", "Seiten einfalten, fest aufrollen.", "Mit Sweet-Chili-Soße servieren."]},
+
+  {id:28,name:"Teriyaki Lachs",emoji:"🐟",cuisine:"Japanisch",type:"meat",time:20,
+   ing:[{n:"Lachsfilet",u:"g",p:180},{n:"Sojasoße",u:"EL",p:2},{n:"Honig",u:"EL",p:1},{n:"Sake/Weißwein",u:"EL",p:1},{n:"Ingwer",u:"cm",p:1},{n:"Sesamkörner",u:"TL",p:1},{n:"Reis",u:"g",p:80}],
+   steps:["Sojasoße, Honig, Sake und geriebenen Ingwer zu Marinade mischen.", "Lachs 10 Min marinieren.", "Pfanne stark erhitzen, Lachs von Fleischseite 3 Min braten.", "Wenden, 2 Min, restliche Marinade drüber geben.", "Karamellisieren lassen.", "Mit Sesam bestreuen, auf Reis servieren."]},
+
+  {id:29,name:"Tom Kha Gai",emoji:"🥥",cuisine:"Thailändisch",type:"meat",time:30,
+   ing:[{n:"Hühnerbrust",u:"g",p:150},{n:"Kokosmilch",u:"ml",p:300},{n:"Galangal/Ingwer",u:"cm",p:3},{n:"Zitronengras",u:"Stk",p:1},{n:"Champignons",u:"g",p:100},{n:"Fischsoße",u:"EL",p:2},{n:"Limette",u:"Stk",p:1},{n:"Koriander",u:"Bund",p:0.25}],
+   steps:["Zitronengras andrücken, mit Ingwer in Brühe 10 Min köcheln.", "Kokosmilch einrühren.", "Hähnchen in Streifen und Pilze hinzufügen, 10 Min garen.", "Mit Fischsoße und Limettensaft abschmecken.", "Mit frischem Koriander servieren."]},
+
+  {id:30,name:"Dal",emoji:"🫘",cuisine:"Indisch",type:"vegi",time:35,
+   ing:[{n:"Rote Linsen",u:"g",p:150},{n:"Tomaten",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:3},{n:"Ingwer",u:"cm",p:2},{n:"Kurkuma",u:"TL",p:1},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Kokosmilch",u:"ml",p:100},{n:"Naan",u:"Stk",p:1}],
+   steps:["Zwiebeln goldbraun braten.", "Knoblauch, Ingwer, Gewürze einrühren, 1 Min rösten.", "Tomaten und Linsen dazu.", "Wasser oder Brühe aufgießen, 25 Min köcheln.", "Kokosmilch einrühren, abschmecken.", "Mit Naan oder Reis servieren."]},
+
+  {id:31,name:"Griechischer Salat mit Hähnchen",emoji:"🥗",cuisine:"Griechisch",type:"meat",time:20,
+   ing:[{n:"Hühnerbrust",u:"g",p:150},{n:"Gurke",u:"Stk",p:0.5},{n:"Tomaten",u:"Stk",p:2},{n:"Feta",u:"g",p:80},{n:"Oliven",u:"EL",p:2},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:2},{n:"Oregano",u:"TL",p:1}],
+   steps:["Hähnchen mit Oregano, Salz und Öl würzen, grillen oder braten.", "Gemüse grob würfeln.", "Salat anrichten, Feta darüber bröckeln.", "Mit Olivenöl, Zitronensaft und Oregano beträufeln.", "Hähnchen draufsetzen."]},
+
+  {id:32,name:"Shakshuka",emoji:"🍳",cuisine:"Nahöstlich",type:"vegi",time:25,
+   ing:[{n:"Eier",u:"Stk",p:2},{n:"Tomaten (dose)",u:"g",p:200},{n:"Paprika",u:"Stk",p:1},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Paprikapulver",u:"TL",p:1},{n:"Feta",u:"g",p:50},{n:"Brot",u:"Scheiben",p:2}],
+   steps:["Zwiebeln und Paprika in Öl anbraten.", "Knoblauch und Gewürze einrühren.", "Tomaten dazu, 10 Min einkochen.", "Mit Löffel Mulden in Soße drücken, Eier hineinschlagen.", "Deckel drauf, 5–7 Min garen bis Eiweiß stockt.", "Feta drüber bröckeln, mit Brot servieren."]},
+
+  {id:33,name:"Falafel mit Hummus",emoji:"🧆",cuisine:"Nahöstlich",type:"vegi",time:40,
+   ing:[{n:"Kichererbsen",u:"g",p:200},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Petersilie",u:"Bund",p:0.25},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Hummus (fertig)",u:"EL",p:4},{n:"Fladenbrot",u:"Stk",p:1},{n:"Salat",u:"Blätter",p:3}],
+   steps:["Kichererbsen (eingeweicht), Zwiebeln, Knoblauch, Petersilie, Gewürze pulsieren.", "Zu Bällchen formen.", "In Öl bei 175°C frittieren bis goldbraun, ca. 4 Min.", "Auf Küchenpapier abtropfen.", "Im Fladenbrot mit Hummus und Salat servieren."]},
+
+  {id:34,name:"Moussaka",emoji:"🍆",cuisine:"Griechisch",type:"meat",time:60,
+   ing:[{n:"Auberginen",u:"Stk",p:1.5},{n:"Hackfleisch",u:"g",p:200},{n:"Tomaten (dose)",u:"g",p:200},{n:"Zwiebeln",u:"Stk",p:1},{n:"Zimt",u:"TL",p:0.5},{n:"Béchamelsoße",u:"ml",p:200},{n:"Parmesan",u:"g",p:40}],
+   steps:["Auberginen in Scheiben, salzen, 20 Min Wasser ziehen lassen, abtupfen.", "In Öl anbraten.", "Hackfleisch mit Zwiebeln, Tomaten und Zimt köcheln.", "In Backform: Auberginen, Fleisch, Auberginen.", "Béchamel drüber, Parmesan.", "Bei 180°C 35 Min backen."]},
+
+  {id:35,name:"Spanakopita",emoji:"🥬",cuisine:"Griechisch",type:"vegi",time:45,
+   ing:[{n:"Phyllo-Teig",u:"Blätter",p:6},{n:"Spinat (TK)",u:"g",p:300},{n:"Feta",u:"g",p:150},{n:"Eier",u:"Stk",p:2},{n:"Dill",u:"TL",p:1},{n:"Olivenöl",u:"EL",p:3},{n:"Zwiebeln",u:"Stk",p:1}],
+   steps:["Spinat auftauen und gut ausdrücken.", "Mit zerbröckeltem Feta, Eiern, Zwiebeln und Dill mischen.", "Backform mit Olivenöl bepinseln.", "Phyllo-Blätter einlegen (je eines ölen).", "Füllung drauf, restliche Blätter drüber.", "Bei 180°C 35 Min backen bis goldbraun."]},
+
+  {id:36,name:"Paella",emoji:"🫕",cuisine:"Spanisch",type:"meat",time:55,
+   ing:[{n:"Paella-Reis",u:"g",p:100},{n:"Hähnchenteile",u:"g",p:200},{n:"Garnelen",u:"g",p:100},{n:"Paprika",u:"Stk",p:1},{n:"Tomaten",u:"Stk",p:1},{n:"Hühnerbrühe",u:"ml",p:400},{n:"Safran",u:"Prisen",p:2},{n:"Paprikapulver",u:"TL",p:1}],
+   steps:["Safran in warmer Brühe auflösen.", "Hähnchen in Paellapfanne anbraten, herausnehmen.", "Gemüse anbraten, Paprikapulver einrühren.", "Reis einrühren, kurz rösten.", "Brühe aufgießen, Hähnchen zurück.", "20 Min ohne Rühren köcheln.", "Garnelen obenauf, 5 Min fertig garen."]},
+
+  {id:37,name:"Tabbouleh",emoji:"🌿",cuisine:"Libanesisch",type:"vegi",time:20,
+   ing:[{n:"Bulgur",u:"g",p:100},{n:"Petersilie",u:"Bund",p:1},{n:"Minze",u:"Blätter",p:10},{n:"Tomaten",u:"Stk",p:2},{n:"Gurke",u:"Stk",p:0.5},{n:"Limettensaft",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Bulgur mit kochendem Wasser übergießen, 15 Min quellen lassen.", "Kräuter sehr fein hacken.", "Gemüse würfeln.", "Alles vermischen, mit Limette und Öl anmachen.", "Mit Salz abschmecken, kühl servieren."]},
+
+  {id:38,name:"Tacos al Pastor",emoji:"🌮",cuisine:"Mexikanisch",type:"meat",time:35,
+   ing:[{n:"Schweinefleisch",u:"g",p:200},{n:"Kleine Tortillas",u:"Stk",p:4},{n:"Ananas",u:"Scheiben",p:2},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Koriander",u:"Bund",p:0.25},{n:"Limette",u:"Stk",p:1},{n:"Chipotle-Chili",u:"TL",p:1},{n:"Salsa",u:"EL",p:3}],
+   steps:["Fleisch mit Chipotle, Öl, Knoblauch marinieren.", "Heiß grillen oder in Pfanne braten.", "Tortillas erhitzen.", "Fleisch mit Ananas, Zwiebeln, Koriander füllen.", "Limette drüber, mit Salsa servieren."]},
+
+  {id:39,name:"Burrito Bowl",emoji:"🫙",cuisine:"Mexikanisch",type:"meat",time:30,
+   ing:[{n:"Reis",u:"g",p:80},{n:"Hühnerbrust",u:"g",p:150},{n:"Schwarze Bohnen",u:"g",p:100},{n:"Mais",u:"EL",p:3},{n:"Avocado",u:"Stk",p:0.5},{n:"Saure Sahne",u:"EL",p:2},{n:"Tomaten",u:"Stk",p:1},{n:"Limette",u:"Stk",p:0.5}],
+   steps:["Reis mit Salz und Limettenschale kochen.", "Hähnchen würzen, grillen oder braten.", "Bohnen erwärmen.", "Bowl aufbauen: Reis, Hähnchen, Bohnen, Mais.", "Avocado würfeln drüber, Saure Sahne, Tomaten.", "Mit Limettensaft abschließen."]},
+
+  {id:40,name:"Veggie Burrito",emoji:"🌯",cuisine:"Mexikanisch",type:"vegi",time:25,
+   ing:[{n:"Große Tortillas",u:"Stk",p:2},{n:"Schwarze Bohnen",u:"g",p:100},{n:"Reis",u:"g",p:80},{n:"Paprika",u:"Stk",p:1},{n:"Mais",u:"EL",p:3},{n:"Cheddar",u:"g",p:60},{n:"Saure Sahne",u:"EL",p:2},{n:"Salsa",u:"EL",p:3}],
+   steps:["Reis kochen, Bohnen erwärmen.", "Paprika in Streifen braten.", "Tortillas kurz erwärmen.", "Alles in die Mitte schichten.", "Seiten einfalten, fest aufrollen.", "Optional: in Pfanne von beiden Seiten andrücken."]},
+
+  {id:41,name:"Guacamole & Nachos",emoji:"🥑",cuisine:"Mexikanisch",type:"vegi",time:15,
+   ing:[{n:"Avocados",u:"Stk",p:1.5},{n:"Limette",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:1},{n:"Rote Zwiebel",u:"EL",p:2},{n:"Koriander",u:"Blätter",p:6},{n:"Tomaten",u:"Stk",p:1},{n:"Nachos",u:"g",p:100}],
+   steps:["Avocados halbieren, Kern entfernen, Fleisch herauslöffeln.", "Mit Gabel grob zerdrücken.", "Limettensaft, Knoblauch, Salz, Zwiebel einrühren.", "Tomaten und Koriander unterheben.", "Sofort mit Nachos servieren, damit es nicht braun wird."]},
+
+  {id:42,name:"Chili con Carne",emoji:"🌶️",cuisine:"Mexikanisch",type:"meat",time:50,
+   ing:[{n:"Hackfleisch",u:"g",p:200},{n:"Kidneybohnen",u:"g",p:200},{n:"Tomaten (dose)",u:"g",p:200},{n:"Paprika",u:"Stk",p:1},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Chili",u:"TL",p:1},{n:"Kreuzkümmel",u:"TL",p:1}],
+   steps:["Zwiebeln und Knoblauch in Öl anbraten.", "Hackfleisch dazu, braun braten.", "Paprika und Gewürze einrühren.", "Tomaten und Bohnen hinzufügen.", "30 Min köcheln.", "Mit Sour Cream, Cheddar und Nachos servieren."]},
+
+  {id:43,name:"Chili sin Carne",emoji:"🌶️",cuisine:"Mexikanisch",type:"vegi",time:40,
+   ing:[{n:"Kidneybohnen",u:"g",p:200},{n:"Linsen",u:"g",p:100},{n:"Tomaten (dose)",u:"g",p:200},{n:"Paprika",u:"Stk",p:1},{n:"Mais",u:"EL",p:3},{n:"Zwiebeln",u:"Stk",p:1},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Chili",u:"TL",p:0.5}],
+   steps:["Zwiebeln in Öl anbraten.", "Paprika und Gewürze einrühren.", "Tomaten, Linsen und Brühe hinzufügen.", "25 Min köcheln.", "Bohnen und Mais einrühren, 5 Min erhitzen.", "Abschmecken und servieren."]},
+
+  {id:44,name:"Classic Burger",emoji:"🍔",cuisine:"Amerikanisch",type:"meat",time:25,
+   ing:[{n:"Hackfleisch (Rind)",u:"g",p:180},{n:"Burgerbrötchen",u:"Stk",p:1},{n:"Cheddar",u:"Scheiben",p:1},{n:"Tomaten",u:"Scheiben",p:2},{n:"Salat",u:"Blätter",p:2},{n:"Zwiebeln",u:"Ringe",p:3},{n:"Gurken",u:"Scheiben",p:3},{n:"Ketchup & Mayo",u:"EL",p:2}],
+   steps:["Hackfleisch zu Patty formen, mit Salz und Pfeffer würzen.", "Grillpfanne stark erhitzen.", "4 Min pro Seite braten.", "Käse in letzter Minute drauf, kurz schmelzen.", "Brötchen toasten.", "Von unten: Soße, Salat, Patty, Käse, Tomaten, Zwiebeln, Gurken, Soße."]},
+
+  {id:45,name:"Mac and Cheese",emoji:"🧀",cuisine:"Amerikanisch",type:"vegi",time:25,
+   ing:[{n:"Macaroni",u:"g",p:100},{n:"Cheddar",u:"g",p:120},{n:"Butter",u:"EL",p:2},{n:"Mehl",u:"EL",p:1.5},{n:"Milch",u:"ml",p:200},{n:"Senf",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Pasta kochen.", "Butter schmelzen, Mehl einrühren, 1 Min rösten.", "Milch schluckweise einrühren bis glatte Soße.", "Cheddar und Senf einschmelzen.", "Pasta in Soße schwenken.", "Optional: überbacken bis goldkruste."]},
+
+  {id:46,name:"BBQ Chicken Wings",emoji:"🍗",cuisine:"Amerikanisch",type:"meat",time:50,
+   ing:[{n:"Chicken Wings",u:"g",p:400},{n:"BBQ-Soße",u:"EL",p:4},{n:"Honig",u:"EL",p:1},{n:"Knoblauchpulver",u:"TL",p:1},{n:"Paprikapulver",u:"TL",p:1},{n:"Öl",u:"EL",p:2}],
+   steps:["Wings mit Gewürzen und Öl vermischen.", "Bei 200°C 35 Min backen, wenden nach der Hälfte.", "BBQ-Soße mit Honig mischen.", "Wings damit bestreichen.", "Nochmal 10 Min backen bis karamellisiert.", "Mit Celery und Blue Cheese Dip servieren."]},
+
+  {id:47,name:"BLT Sandwich",emoji:"🥪",cuisine:"Amerikanisch",type:"meat",time:15,
+   ing:[{n:"Toastbrot",u:"Scheiben",p:3},{n:"Speck/Bacon",u:"Scheiben",p:4},{n:"Salat",u:"Blätter",p:3},{n:"Tomaten",u:"Stk",p:1},{n:"Mayo",u:"EL",p:2}],
+   steps:["Bacon knusprig braten.", "Brot toasten.", "Mayo auf Brot streichen.", "Salat, Tomaten, Bacon schichten.", "Deckel drauf, diagonal schneiden."]},
+
+  {id:48,name:"Pancakes",emoji:"🥞",cuisine:"Amerikanisch",type:"vegi",time:20,
+   ing:[{n:"Mehl",u:"g",p:150},{n:"Eier",u:"Stk",p:2},{n:"Milch",u:"ml",p:200},{n:"Backpulver",u:"TL",p:1},{n:"Zucker",u:"EL",p:1},{n:"Butter",u:"EL",p:2},{n:"Ahornsirup",u:"EL",p:3}],
+   steps:["Trockene und nasse Zutaten getrennt mischen.", "Zusammenrühren, Klümpchen sind ok.", "Pfanne mit Butter bei mittlerer Hitze.", "Ca. 80ml Teig eingiessen.", "Wenn Blasen platzen: wenden.", "Mit Ahornsirup und Früchten servieren."]},
+
+  {id:49,name:"Caesar Salad",emoji:"🥗",cuisine:"Amerikanisch",type:"meat",time:20,
+   ing:[{n:"Römersalat",u:"Stk",p:0.5},{n:"Hühnerbrust",u:"g",p:150},{n:"Parmesan",u:"g",p:30},{n:"Croutons",u:"g",p:40},{n:"Caesar Dressing",u:"EL",p:3},{n:"Zitrone",u:"Stk",p:0.5}],
+   steps:["Hähnchen würzen, grillen bis gar.", "Salat in Stücke reißen.", "Mit Dressing mischen.", "Croutons und Parmesan drüber.", "Hähnchen in Streifen draufsetzen.", "Mit Zitrone beträufeln."]},
+
+  {id:50,name:"Grilled Cheese",emoji:"🧀",cuisine:"Amerikanisch",type:"vegi",time:10,
+   ing:[{n:"Toastbrot",u:"Scheiben",p:2},{n:"Cheddar",u:"Scheiben",p:3},{n:"Butter",u:"EL",p:1.5}],
+   steps:["Außenseiten des Brots dick mit Butter bestreichen.", "Käse zwischen die Scheiben legen.", "Bei mittlerer Hitze von beiden Seiten 3 Min goldbraun braten.", "Wenn Käse schmilzt und Brot kross: fertig."]},
+
+  {id:51,name:"Quiche Lorraine",emoji:"🥧",cuisine:"Französisch",type:"meat",time:55,
+   ing:[{n:"Mürbteig",u:"g",p:200},{n:"Speck",u:"g",p:100},{n:"Eier",u:"Stk",p:3},{n:"Sahne",u:"ml",p:200},{n:"Gruyère",u:"g",p:80},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Teig in Form drücken, blindbacken bei 180°C 10 Min.", "Speck und Zwiebeln anbraten.", "Eier mit Sahne, Käse, Salz und Pfeffer verrühren.", "Speck in die Form, Eiercreme drüber.", "35 Min backen bis gestockt und goldbraun.", "10 Min abkühlen, warm oder kalt servieren."]},
+
+  {id:52,name:"French Onion Soup",emoji:"🧅",cuisine:"Französisch",type:"vegi",time:50,
+   ing:[{n:"Zwiebeln",u:"Stk",p:4},{n:"Butter",u:"EL",p:3},{n:"Weißwein",u:"ml",p:100},{n:"Rindsuppe",u:"ml",p:600},{n:"Baguette",u:"Scheiben",p:3},{n:"Gruyère",u:"g",p:80},{n:"Thymian",u:"TL",p:0.5}],
+   steps:["Zwiebeln in Ringe schneiden.", "In Butter 30 Min karamellisieren bis dunkelgolden.", "Mit Wein ablöschen.", "Brühe und Thymian dazu, 10 Min köcheln.", "In Ofenförmchen füllen, Brot drauf, Käse drüber.", "Unter Grill bis Käse blubbert."]},
+
+  {id:53,name:"Croque Monsieur",emoji:"🥪",cuisine:"Französisch",type:"meat",time:15,
+   ing:[{n:"Toastbrot",u:"Scheiben",p:2},{n:"Schinken",u:"Scheiben",p:2},{n:"Gruyère",u:"g",p:60},{n:"Béchamelsoße",u:"EL",p:2},{n:"Butter",u:"EL",p:1},{n:"Senf",u:"TL",p:1}],
+   steps:["Brot mit Béchamel und Senf bestreichen.", "Schinken und Käse darauf.", "Zweite Scheibe drauf.", "In Butter goldbraun braten.", "Mit restlichem Käse und Béchamel bedecken.", "Unter Grill überbacken."]},
+
+  {id:54,name:"Ratatouille",emoji:"🍆",cuisine:"Französisch",type:"vegi",time:50,
+   ing:[{n:"Auberginen",u:"Stk",p:1},{n:"Zucchini",u:"Stk",p:1},{n:"Paprika",u:"Stk",p:1},{n:"Tomaten",u:"Stk",p:3},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Thymian & Rosmarin",u:"TL",p:1},{n:"Olivenöl",u:"EL",p:3}],
+   steps:["Alle Gemüse in gleichmäßige Scheiben schneiden.", "Tomatensoße aus Zwiebeln, Knoblauch, Tomaten kochen.", "In Backform schichten: abwechselnd Aubergine, Zucchini, Paprika, Tomate.", "Mit Kräutern bestreuen, Olivenöl drüber.", "Bei 180°C 35 Min backen."]},
+
+  {id:55,name:"Steak & Pommes",emoji:"🥩",cuisine:"Französisch",type:"meat",time:35,
+   ing:[{n:"Rindersteak",u:"g",p:250},{n:"Kartoffeln",u:"g",p:300},{n:"Butter",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Thymian",u:"TL",p:0.5},{n:"Öl",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Pommes: Kartoffeln in Stifte, bei 200°C 30 Min backen.", "Steak 30 Min vor dem Braten temperieren.", "Gusseisenpfanne extrem heiß erhitzen.", "Steak je nach Dicke 2–4 Min pro Seite braten.", "Butter, Knoblauch und Thymian dazu, Fleisch übergießen.", "5 Min ruhen lassen, dann aufschneiden."]},
+
+  {id:56,name:"Flammkuchen",emoji:"🍕",cuisine:"Elsässisch",type:"meat",time:30,
+   ing:[{n:"Flammkuchenteig",u:"g",p:200},{n:"Crème fraîche",u:"EL",p:4},{n:"Speck",u:"g",p:80},{n:"Zwiebeln",u:"Stk",p:1.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Ofen auf 250°C vorheizen.", "Teig sehr dünn ausrollen.", "Mit Crème fraîche bestreichen.", "Speck und Zwiebelringe verteilen.", "8–10 Min backen bis Rand kross.", "Sofort servieren."]},
+
+  {id:57,name:"Vegi Flammkuchen",emoji:"🧅",cuisine:"Elsässisch",type:"vegi",time:25,
+   ing:[{n:"Flammkuchenteig",u:"g",p:200},{n:"Crème fraîche",u:"EL",p:4},{n:"Zwiebeln",u:"Stk",p:2},{n:"Champignons",u:"g",p:100},{n:"Gruyère",u:"g",p:50},{n:"Rosmarin",u:"TL",p:0.5}],
+   steps:["Ofen auf 250°C vorheizen.", "Teig dünn ausrollen, mit Crème fraîche bestreichen.", "Karamellisierte Zwiebeln, Pilze, Käse drauf.", "8–10 Min backen."]},
+
+  {id:58,name:"Poke Bowl",emoji:"🐟",cuisine:"Hawaiianisch",type:"meat",time:20,
+   ing:[{n:"Lachs (sushi-grade)",u:"g",p:150},{n:"Sushi-Reis",u:"g",p:100},{n:"Avocado",u:"Stk",p:0.5},{n:"Gurke",u:"Stk",p:0.5},{n:"Edamame",u:"EL",p:3},{n:"Sojasoße",u:"EL",p:2},{n:"Sesamöl",u:"TL",p:1},{n:"Sesam",u:"TL",p:1}],
+   steps:["Reis kochen, abkühlen lassen.", "Lachs in Würfel, mit Sojasoße und Sesamöl marinieren.", "Alle Toppings vorbereiten.", "Reis in Bowl, alles schön anrichten.", "Mit Sesam bestreuen."]},
+
+  {id:59,name:"Tofu Poke Bowl",emoji:"🥑",cuisine:"Hawaiianisch",type:"vegi",time:20,
+   ing:[{n:"Sushi-Reis",u:"g",p:100},{n:"Tofu",u:"g",p:150},{n:"Avocado",u:"Stk",p:0.5},{n:"Edamame",u:"EL",p:3},{n:"Karotten",u:"Stk",p:1},{n:"Sesam",u:"TL",p:1},{n:"Sojasoße",u:"EL",p:2}],
+   steps:["Reis kochen.", "Tofu würfeln, in Sojasoße marinieren, braten.", "Karotten raspeln.", "Alles in der Bowl anrichten.", "Mit Sesam bestreuen."]},
+
+  {id:60,name:"Frittata",emoji:"🍳",cuisine:"Italienisch",type:"vegi",time:25,
+   ing:[{n:"Eier",u:"Stk",p:4},{n:"Paprika",u:"Stk",p:1},{n:"Zucchini",u:"Stk",p:0.5},{n:"Feta",u:"g",p:60},{n:"Basilikum",u:"Blätter",p:5},{n:"Olivenöl",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Gemüse in Scheiben in ofenfester Pfanne mit Öl anbraten.", "Eier mit Salz und Pfeffer verquirlen.", "Eiermasse über Gemüse gießen.", "Bei mittlerer Hitze stocken lassen.", "Unter Backofengrill 5 Min fertig garen.", "Mit Feta und Basilikum servieren."]},
+
+  {id:61,name:"Omelett",emoji:"🥚",cuisine:"International",type:"vegi",time:10,
+   ing:[{n:"Eier",u:"Stk",p:3},{n:"Butter",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0},{n:"Wunschfüllung",u:"",p:0}],
+   steps:["Eier verquirlen, salzen.", "Butter in Pfanne schmelzen.", "Eier eingiessen, mit Gabel sanft rühren.", "Wenn fast gestockt: Füllung auf eine Hälfte.", "Zusammenklappen, sofort servieren."]},
+
+  {id:62,name:"Veggie Stir Fry",emoji:"🥦",cuisine:"Asiatisch",type:"vegi",time:20,
+   ing:[{n:"Brokkoli",u:"g",p:150},{n:"Paprika",u:"Stk",p:1},{n:"Champignons",u:"g",p:100},{n:"Karotten",u:"Stk",p:1},{n:"Sojasoße",u:"EL",p:3},{n:"Sesamöl",u:"TL",p:1},{n:"Ingwer",u:"cm",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Reis",u:"g",p:80}],
+   steps:["Wok sehr stark erhitzen.", "Härtestes Gemüse zuerst (Karotten, Brokkoli).", "Nach und nach weiches Gemüse dazu.", "Knoblauch und Ingwer einrühren.", "Sojasoße und Sesamöl drüber.", "Auf Reis servieren."]},
+
+  {id:63,name:"Beef Stir Fry",emoji:"🥩",cuisine:"Asiatisch",type:"meat",time:25,
+   ing:[{n:"Rindersteak in Streifen",u:"g",p:180},{n:"Paprika",u:"Stk",p:1},{n:"Brokkoli",u:"g",p:100},{n:"Sojasoße",u:"EL",p:3},{n:"Austernsauce",u:"EL",p:1},{n:"Sesamöl",u:"TL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Reis",u:"g",p:80}],
+   steps:["Fleisch sehr heiß und schnell anbraten, herausnehmen.", "Gemüse im gleichen Wok braten.", "Fleisch zurück, Soßen einrühren.", "Auf Reis servieren."]},
+
+  {id:64,name:"Spinat-Feta-Wrap",emoji:"🌯",cuisine:"International",type:"vegi",time:15,
+   ing:[{n:"Tortilla-Wraps",u:"Stk",p:2},{n:"Spinat",u:"g",p:80},{n:"Feta",u:"g",p:80},{n:"Tomaten",u:"Stk",p:1},{n:"Hummus",u:"EL",p:2},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Gurke",u:"Stk",p:0.5}],
+   steps:["Tortilla mit Hummus bestreichen.", "Spinat, Tomaten, Gurke, Zwiebel schichten.", "Feta darüber bröckeln.", "Fest aufrollen, diagonal schneiden."]},
+
+  {id:65,name:"Hähnchen Gyros",emoji:"🫔",cuisine:"Griechisch",type:"meat",time:35,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Pittabrot",u:"Stk",p:2},{n:"Tzatziki",u:"EL",p:4},{n:"Tomaten",u:"Stk",p:1},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Gyros-Gewürz",u:"EL",p:1.5},{n:"Salat",u:"Blätter",p:3}],
+   steps:["Hähnchen in Streifen mit Gyros-Gewürz marinieren.", "In heißem Öl knusprig braten.", "Pita erwärmen.", "Mit Tzatziki bestreichen, Salat, Hähnchen, Tomaten, Zwiebeln.", "Aufrollen, sofort servieren."]},
+
+  {id:66,name:"Kartoffelsuppe",emoji:"🥔",cuisine:"Deutsch",type:"vegi",time:40,
+   ing:[{n:"Kartoffeln",u:"g",p:400},{n:"Sellerie",u:"Stk",p:0.5},{n:"Karotten",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Gemüsebrühe",u:"ml",p:600},{n:"Sahne",u:"EL",p:2},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Gemüse würfeln.", "In Öl anbraten.", "Mit Brühe aufgießen, 25 Min köcheln.", "Pürieren, Sahne einrühren.", "Mit Petersilie und Croutons servieren."]},
+
+  {id:67,name:"Tomatensuppe",emoji:"🍅",cuisine:"International",type:"vegi",time:30,
+   ing:[{n:"Tomaten (dose)",u:"g",p:400},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Gemüsebrühe",u:"ml",p:200},{n:"Sahne",u:"EL",p:2},{n:"Basilikum",u:"Blätter",p:6},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Zwiebeln und Knoblauch in Öl anschwitzen.", "Tomaten dazu, 15 Min köcheln.", "Pürieren.", "Sahne einrühren, abschmecken.", "Mit Basilikum und Croutons servieren."]},
+
+  {id:68,name:"Zucchini-Pasta",emoji:"🥒",cuisine:"Italienisch",type:"vegi",time:20,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Zucchini",u:"Stk",p:1.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Parmesan",u:"g",p:30},{n:"Olivenöl",u:"EL",p:3},{n:"Basilikum",u:"Blätter",p:5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Pasta kochen.", "Zucchini in dünne Scheiben, mit Knoblauch in Öl braten.", "Pasta und Zucchini mit Kochwasser mischen.", "Parmesan und Basilikum drüber."]},
+
+  {id:69,name:"Hühnernuddelsuppe",emoji:"🍲",cuisine:"International",type:"meat",time:45,
+   ing:[{n:"Hühnerbrust",u:"g",p:150},{n:"Nudeln",u:"g",p:80},{n:"Karotten",u:"Stk",p:2},{n:"Sellerie",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:1},{n:"Hühnerbrühe",u:"ml",p:800},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Brühe aufkochen.", "Hähnchen einlegen, 20 Min köcheln.", "Herausnehmen, in Streifen reißen.", "Gemüse in Brühe garen.", "Nudeln mitkochen.", "Hähnchen zurück, mit Petersilie servieren."]},
+
+  {id:70,name:"Minestrone",emoji:"🥣",cuisine:"Italienisch",type:"vegi",time:40,
+   ing:[{n:"Tomaten (dose)",u:"g",p:200},{n:"Kidneybohnen",u:"g",p:100},{n:"Nudeln",u:"g",p:60},{n:"Karotten",u:"Stk",p:1},{n:"Zucchini",u:"Stk",p:0.5},{n:"Sellerie",u:"Stk",p:0.5},{n:"Gemüsebrühe",u:"ml",p:500},{n:"Parmesan",u:"g",p:30}],
+   steps:["Gemüse würfeln, in Öl anbraten.", "Tomaten und Brühe dazu.", "20 Min köcheln.", "Nudeln und Bohnen einrühren.", "10 Min fertig kochen.", "Mit Parmesan servieren."]},
+
+  {id:71,name:"Sushi Rolls",emoji:"🍱",cuisine:"Japanisch",type:"meat",time:50,
+   ing:[{n:"Sushi-Reis",u:"g",p:200},{n:"Lachs/Thunfisch",u:"g",p:120},{n:"Nori-Blätter",u:"Stk",p:4},{n:"Gurke",u:"Stk",p:0.5},{n:"Avocado",u:"Stk",p:0.5},{n:"Reisessig",u:"EL",p:2},{n:"Sojasoße",u:"EL",p:2},{n:"Wasabi",u:"TL",p:0.5}],
+   steps:["Reis kochen, mit Reisessig würzen, abkühlen.", "Nori auf Bambusmatte.", "Reis gleichmäßig drauf, 1cm Rand frei.", "Füllung in einer Linie.", "Fest aufrollen mit Matte.", "In Scheiben schneiden.", "Mit Sojasoße und Wasabi servieren."]},
+
+  {id:72,name:"Scrambled Eggs Toast",emoji:"🍳",cuisine:"International",type:"vegi",time:10,
+   ing:[{n:"Eier",u:"Stk",p:3},{n:"Butter",u:"EL",p:1},{n:"Vollkorntoast",u:"Scheiben",p:2},{n:"Sahne",u:"EL",p:1},{n:"Schnittlauch",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Eier mit Sahne, Salz und Pfeffer verquirlen.", "Butter bei kleiner Hitze schmelzen.", "Eier eingiessen, langsam von außen nach innen falten.", "Vom Herd nehmen wenn noch cremig.", "Auf getoastetem Brot, mit Schnittlauch."]},
+
+  {id:73,name:"Auberginen-Parmesan",emoji:"🍆",cuisine:"Italienisch",type:"vegi",time:50,
+   ing:[{n:"Auberginen",u:"Stk",p:1.5},{n:"Tomatensoße",u:"ml",p:250},{n:"Mozzarella",u:"g",p:125},{n:"Parmesan",u:"g",p:50},{n:"Basilikum",u:"Blätter",p:8},{n:"Mehl",u:"EL",p:3},{n:"Olivenöl",u:"EL",p:3}],
+   steps:["Auberginen in Scheiben, salzen, 20 Min abwarten.", "Trocken tupfen, in Mehl wenden.", "In Olivenöl braten.", "In Form: Tomatensoße, Auberginen, Mozzarella, Basilikum.", "Wiederholen, Parmesan oben drauf.", "Bei 180°C 25 Min backen."]},
+
+  {id:74,name:"Pulled Pork Sandwich",emoji:"🥩",cuisine:"Amerikanisch",type:"meat",time:60,
+   ing:[{n:"Schweinebauch",u:"g",p:250},{n:"BBQ-Soße",u:"EL",p:4},{n:"Burger-Buns",u:"Stk",p:2},{n:"Coleslaw",u:"EL",p:4},{n:"Paprikapulver",u:"TL",p:1},{n:"Knoblauchpulver",u:"TL",p:0.5},{n:"Brauner Zucker",u:"EL",p:1}],
+   steps:["Fleisch mit Rub (Paprika, Knoblauch, Zucker, Salz) einreiben.", "Bei 160°C 50 Min im Ofen schmoren.", "Mit 2 Gabeln auseinanderzupfen.", "Mit BBQ-Soße mischen.", "In gerösteten Buns mit Coleslaw servieren."]},
+
+  {id:75,name:"Veggie Bowl mit Quinoa",emoji:"🌾",cuisine:"International",type:"vegi",time:30,
+   ing:[{n:"Quinoa",u:"g",p:80},{n:"Kichererbsen",u:"g",p:100},{n:"Avocado",u:"Stk",p:0.5},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Gurke",u:"Stk",p:0.5},{n:"Feta",u:"g",p:60},{n:"Tahini",u:"EL",p:2},{n:"Zitronensaft",u:"EL",p:1}],
+   steps:["Quinoa kochen.", "Kichererbsen mit Öl und Gewürzen im Ofen rösten.", "Tahini mit Zitronensaft und Wasser zu Dressing rühren.", "Alles in Bowl anrichten.", "Dressing drüber."]},
+
+  {id:76,name:"Süßkartoffel Curry",emoji:"🍠",cuisine:"Indisch",type:"vegi",time:35,
+   ing:[{n:"Süßkartoffeln",u:"g",p:300},{n:"Kokosmilch",u:"ml",p:200},{n:"Rote Currypaste",u:"EL",p:1.5},{n:"Spinat",u:"g",p:100},{n:"Kichererbsen",u:"g",p:100},{n:"Zwiebeln",u:"Stk",p:1},{n:"Reis",u:"g",p:80}],
+   steps:["Zwiebeln anbraten, Currypaste einrühren.", "Süßkartoffeln würfeln, dazu.", "Kokosmilch aufgießen, 20 Min köcheln.", "Kichererbsen und Spinat einrühren.", "Mit Reis servieren."]},
+
+  {id:77,name:"Hühner-Stroganov",emoji:"🍗",cuisine:"Russisch",type:"meat",time:35,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Champignons",u:"g",p:150},{n:"Zwiebeln",u:"Stk",p:1},{n:"Saure Sahne",u:"EL",p:4},{n:"Hühnerbrühe",u:"ml",p:150},{n:"Senf",u:"TL",p:1},{n:"Nudeln/Reis",u:"g",p:80}],
+   steps:["Hähnchen in Streifen scharf anbraten.", "Pilze und Zwiebeln dazu.", "Mit Brühe aufgießen.", "Saure Sahne und Senf einrühren.", "10 Min köcheln.", "Mit Nudeln oder Reis servieren."]},
+
+  {id:78,name:"Borschtsch",emoji:"🥣",cuisine:"Ukrainisch",type:"vegi",time:55,
+   ing:[{n:"Rote Beten",u:"Stk",p:2},{n:"Kartoffeln",u:"Stk",p:2},{n:"Karotten",u:"Stk",p:1},{n:"Weisskohl",u:"g",p:150},{n:"Tomatenmark",u:"EL",p:2},{n:"Gemüsebrühe",u:"ml",p:700},{n:"Saure Sahne",u:"EL",p:2},{n:"Dill",u:"EL",p:1}],
+   steps:["Rote Bete rösten bis weich.", "Gemüse würfeln.", "In Öl anbraten, Tomatenmark einrühren.", "Brühe dazu, 30 Min köcheln.", "Rote Bete reiben und unterrühren.", "Mit Saurer Sahne und Dill servieren."]},
+
+  {id:79,name:"Hoisin Duck Wrap",emoji:"🦆",cuisine:"Asiatisch",type:"meat",time:40,
+   ing:[{n:"Entenbrust",u:"g",p:200},{n:"Hoisin-Soße",u:"EL",p:3},{n:"Pfannkuchen-Wraps",u:"Stk",p:4},{n:"Gurke",u:"Stk",p:0.5},{n:"Frühlingszwiebeln",u:"Stk",p:3},{n:"Sesamöl",u:"TL",p:1}],
+   steps:["Entenbrust mit Hoisin-Soße marinieren.", "Hautseite bei mittlerer Hitze 8 Min knusprig braten.", "Wenden, 5 Min fertig garen.", "Ruhen lassen, in Scheiben schneiden.", "In Wraps mit Gurke, Frühlingszwiebeln und extra Hoisin."]},
+
+  {id:80,name:"Tofu-Scramble",emoji:"🫘",cuisine:"Vegan",type:"vegi",time:20,
+   ing:[{n:"Tofu (fest)",u:"g",p:200},{n:"Kurkuma",u:"TL",p:0.5},{n:"Paprikapulver",u:"TL",p:1},{n:"Paprika",u:"Stk",p:0.5},{n:"Spinat",u:"g",p:80},{n:"Sojasoße",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:1},{n:"Toast",u:"Scheiben",p:2}],
+   steps:["Tofu mit Händen krümeln.", "In Öl mit Kurkuma und Paprikapulver anbraten.", "Paprika dazu, 3 Min mitbraten.", "Spinat einrühren bis zusammengefallen.", "Sojasoße drüber.", "Auf Toast servieren."]},
+
+  {id:81,name:"Focaccia",emoji:"🫒",cuisine:"Italienisch",type:"vegi",time:60,
+   ing:[{n:"Mehl",u:"g",p:250},{n:"Hefe",u:"g",p:7},{n:"Olivenöl",u:"EL",p:4},{n:"Oliven",u:"g",p:60},{n:"Rosmarin",u:"TL",p:1},{n:"Salz",u:"TL",p:1},{n:"Wasser",u:"ml",p:180}],
+   steps:["Hefe in warmem Wasser auflösen.", "Mehl, Salz, Öl und Hefewasser zu Teig kneten.", "30 Min gehen lassen.", "In geölte Form drücken, mit Fingern Mulden machen.", "Oliven, Rosmarin, Olivenöl und Meersalz drüber.", "Bei 220°C 20 Min backen."]},
+
+  {id:82,name:"Spargel Hollandaise",emoji:"🌿",cuisine:"Österreichisch",type:"vegi",time:30,
+   ing:[{n:"Weißer Spargel",u:"g",p:400},{n:"Butter",u:"g",p:100},{n:"Eigelb",u:"Stk",p:2},{n:"Zitronensaft",u:"EL",p:1},{n:"Salz",u:"TL",p:0.5}],
+   steps:["Spargel schälen, in Salzwasser 15–20 Min kochen.", "Butter schmelzen.", "Eigelb mit Zitronensaft im Wasserbad schlagen bis cremig.", "Butter langsam einrühren bis Hollandaise entsteht.", "Sofort über Spargel gießen."]},
+
+  {id:83,name:"Lachs auf Spinat",emoji:"🐟",cuisine:"International",type:"meat",time:25,
+   ing:[{n:"Lachsfilet",u:"g",p:180},{n:"Blattspinat",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:2},{n:"Sahne",u:"EL",p:2},{n:"Zitrone",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Lachs würzen, in Öl 4 Min pro Seite braten.", "Spinat mit Knoblauch in Butter zusammenfallen lassen.", "Sahne einrühren, abschmecken.", "Spinat auf Teller, Lachs drauf, Zitrone drüber."]},
+
+  {id:84,name:"Avocado Toast",emoji:"🥑",cuisine:"International",type:"vegi",time:10,
+   ing:[{n:"Sauerteigbrot",u:"Scheiben",p:2},{n:"Avocados",u:"Stk",p:1},{n:"Zitronensaft",u:"TL",p:1},{n:"Chiliflocken",u:"Prisen",p:1},{n:"Salz & Pfeffer",u:"",p:0},{n:"Eier (optional)",u:"Stk",p:2}],
+   steps:["Brot toasten.", "Avocado zerdrücken, mit Zitrone, Salz und Pfeffer würzen.", "Auf Brot streichen.", "Optional: Spiegelei oder pochiertes Ei drauf.", "Mit Chiliflocken und Meersalz fertigstellen."]},
+
+  {id:85,name:"Gemüse-Frittata",emoji:"🥚",cuisine:"International",type:"vegi",time:30,
+   ing:[{n:"Eier",u:"Stk",p:5},{n:"Zucchini",u:"Stk",p:1},{n:"Champignons",u:"g",p:100},{n:"Paprika",u:"Stk",p:1},{n:"Parmesan",u:"g",p:40},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Gemüse in Scheiben, in ofenfester Pfanne anbraten.", "Eier verquirlen, über Gemüse giessen.", "2 Min auf Herd anstocken.", "Im Ofen bei 200°C 10 Min fertig backen.", "Mit Parmesan und Salat servieren."]},
+
+  {id:86,name:"Hühnchen-Fajitas",emoji:"🌮",cuisine:"Mexikanisch",type:"meat",time:25,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Paprika (mix)",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Tortillas",u:"Stk",p:4},{n:"Fajita-Gewürz",u:"EL",p:1.5},{n:"Saure Sahne",u:"EL",p:2},{n:"Guacamole",u:"EL",p:2}],
+   steps:["Hähnchen und Gemüse in Streifen.", "In heißer Pfanne scharf anbraten.", "Gewürze dazu.", "In warmen Tortillas mit Sour Cream und Guac."]},
+
+  {id:87,name:"Pasta e Fagioli",emoji:"🫘",cuisine:"Italienisch",type:"vegi",time:40,
+   ing:[{n:"Weiße Bohnen",u:"g",p:200},{n:"Ditalini-Nudeln",u:"g",p:80},{n:"Tomaten (dose)",u:"g",p:150},{n:"Knoblauch",u:"Zehen",p:2},{n:"Rosmarin",u:"TL",p:0.5},{n:"Gemüsebrühe",u:"ml",p:400},{n:"Parmesan",u:"g",p:30},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Knoblauch in Öl anbraten.", "Tomaten, Bohnen und Brühe dazu.", "15 Min köcheln, die Hälfte der Bohnen pürieren.", "Nudeln direkt in Suppe kochen.", "Mit Rosmarin und Parmesan servieren."]},
+
+  {id:88,name:"Schweinsbraten",emoji:"🍖",cuisine:"Österreichisch",type:"meat",time:60,
+   ing:[{n:"Schweinsbraten",u:"g",p:300},{n:"Knoblauch",u:"Zehen",p:3},{n:"Kümmel",u:"TL",p:1},{n:"Zwiebeln",u:"Stk",p:2},{n:"Bier",u:"ml",p:150},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Fleisch mit Salz, Pfeffer, Kümmel und Knoblauch einreiben.", "In heißem Öl rundum anbraten.", "Zwiebeln dazu.", "Mit Bier ablöschen.", "Im Ofen bei 160°C 50 Min schmoren.", "Bratensaft absieben und als Soße servieren."]},
+
+  {id:89,name:"Spinat-Ricotta-Pasta",emoji:"🌿",cuisine:"Italienisch",type:"vegi",time:25,
+   ing:[{n:"Penne",u:"g",p:100},{n:"Spinat",u:"g",p:150},{n:"Ricotta",u:"g",p:100},{n:"Knoblauch",u:"Zehen",p:2},{n:"Parmesan",u:"g",p:30},{n:"Olivenöl",u:"EL",p:2},{n:"Zitronenschale",u:"TL",p:0.5}],
+   steps:["Pasta kochen.", "Knoblauch in Öl anbraten, Spinat dazu.", "Ricotta einrühren, etwas Kochwasser dazu.", "Pasta in Soße, mit Parmesan und Zitrone."]},
+
+  {id:90,name:"Couscous-Salat",emoji:"🫙",cuisine:"Nordafrikanisch",type:"vegi",time:20,
+   ing:[{n:"Couscous",u:"g",p:100},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Gurke",u:"Stk",p:0.5},{n:"Petersilie",u:"Bund",p:0.5},{n:"Feta",u:"g",p:80},{n:"Zitronensaft",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:2},{n:"Kichererbsen",u:"g",p:80}],
+   steps:["Couscous mit kochendem Wasser übergießen, 5 Min quellen.", "Gemüse würfeln, Petersilie hacken.", "Alles mischen.", "Mit Zitrone, Öl, Salz und Pfeffer würzen.", "Feta darüber bröckeln."]},
+
+  {id:91,name:"Lammkoteletts",emoji:"🐑",cuisine:"Mediterran",type:"meat",time:25,
+   ing:[{n:"Lammkoteletts",u:"Stk",p:3},{n:"Knoblauch",u:"Zehen",p:2},{n:"Rosmarin",u:"TL",p:1},{n:"Minze",u:"Blätter",p:8},{n:"Zitrone",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Koteletts mit Knoblauch, Rosmarin, Öl marinieren.", "Grillpfanne stark erhitzen.", "3 Min pro Seite braten.", "5 Min ruhen lassen.", "Mit frischer Minze und Zitrone servieren."]},
+
+  {id:92,name:"Gemüse-Tajine",emoji:"🫕",cuisine:"Marokkanisch",type:"vegi",time:50,
+   ing:[{n:"Karotten",u:"Stk",p:2},{n:"Zucchini",u:"Stk",p:1},{n:"Kichererbsen",u:"g",p:150},{n:"Tomaten (dose)",u:"g",p:200},{n:"Ras el Hanout",u:"TL",p:1},{n:"Zimt",u:"TL",p:0.5},{n:"Couscous",u:"g",p:100},{n:"Mandeln",u:"EL",p:2}],
+   steps:["Gemüse in Öl anbraten.", "Gewürze einrühren.", "Tomaten und Kichererbsen dazu.", "30 Min köcheln.", "Couscous mit kochendem Wasser übergießen.", "Mit Mandeln und Couscous servieren."]},
+
+  {id:93,name:"Hühnchen Marsala",emoji:"🍷",cuisine:"Italienisch",type:"meat",time:35,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Champignons",u:"g",p:150},{n:"Marsalawein",u:"ml",p:100},{n:"Sahne",u:"ml",p:80},{n:"Butter",u:"EL",p:2},{n:"Mehl",u:"EL",p:2},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Hähnchen in Mehl wenden, in Butter goldbraun braten.", "Pilze dazu.", "Mit Marsala ablöschen.", "Sahne einrühren, 10 Min köcheln.", "Mit Petersilie und Bandnudeln servieren."]},
+
+  {id:94,name:"Blumenkohl-Steak",emoji:"🥦",cuisine:"International",type:"vegi",time:30,
+   ing:[{n:"Blumenkohl",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:3},{n:"Kurkuma",u:"TL",p:0.5},{n:"Paprikapulver",u:"TL",p:1},{n:"Tahini",u:"EL",p:2},{n:"Zitronensaft",u:"EL",p:1},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Blumenkohl in 2cm dicke Scheiben schneiden.", "Mit Öl und Gewürzen bestreichen.", "In Grillpfanne 4 Min pro Seite anbraten.", "Im Ofen bei 200°C 10 Min fertig garen.", "Mit Tahini-Dressing und Petersilie servieren."]},
+
+  {id:95,name:"Garnelen al Ajillo",emoji:"🦐",cuisine:"Spanisch",type:"meat",time:15,
+   ing:[{n:"Garnelen",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:4},{n:"Chili",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:3},{n:"Petersilie",u:"EL",p:2},{n:"Baguette",u:"Scheiben",p:3},{n:"Zitronensaft",u:"EL",p:1}],
+   steps:["Knoblauch in Scheiben und Chili in Öl anbraten.", "Garnelen einlegen, 2 Min je Seite.", "Zitronensaft und Petersilie drüber.", "Sofort mit Brot servieren."]},
+
+  {id:96,name:"Veggie Bolognese",emoji:"🍝",cuisine:"Italienisch",type:"vegi",time:40,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Linsen",u:"g",p:100},{n:"Tomaten (dose)",u:"g",p:200},{n:"Karotten",u:"Stk",p:1},{n:"Sellerie",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:1},{n:"Tomatenmark",u:"EL",p:2},{n:"Parmesan",u:"g",p:30}],
+   steps:["Gemüse fein hacken, in Öl anbraten.", "Tomatenmark rösten.", "Tomaten und Linsen dazu, 25 Min köcheln.", "Pasta kochen.", "Mit Sauce mischen, Parmesan drüber."]},
+
+  {id:97,name:"Thunfisch-Pasta",emoji:"🐟",cuisine:"Italienisch",type:"meat",time:20,
+   ing:[{n:"Pasta",u:"g",p:100},{n:"Thunfisch (dose)",u:"g",p:140},{n:"Kapern",u:"EL",p:1},{n:"Oliven",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Tomatensoße",u:"EL",p:3},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Pasta kochen.", "Knoblauch in Öl anbraten.", "Thunfisch (abgetropft) einrühren.", "Tomatensoße, Kapern und Oliven dazu.", "Pasta einrühren, mit Petersilie servieren."]},
+
+  {id:98,name:"Kürbissuppe",emoji:"🎃",cuisine:"International",type:"vegi",time:35,
+   ing:[{n:"Hokkaido-Kürbis",u:"g",p:500},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ingwer",u:"cm",p:2},{n:"Kokosmilch",u:"ml",p:150},{n:"Gemüsebrühe",u:"ml",p:400},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Kürbis in Stücke, Zwiebeln, Knoblauch, Ingwer in Öl anbraten.", "Brühe dazu, 20 Min köcheln.", "Pürieren.", "Kokosmilch einrühren.", "Mit Kürbiskernen und Sahnetupfen servieren."]},
+
+  {id:99,name:"Hähnchen-Paprikash",emoji:"🫕",cuisine:"Ungarisch",type:"meat",time:45,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Paprikapulver",u:"EL",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Saure Sahne",u:"EL",p:3},{n:"Hühnerbrühe",u:"ml",p:200},{n:"Nudeln",u:"g",p:80},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Zwiebeln goldbraun braten.", "Paprikapulver einrühren.", "Hähnchen würfeln dazu, mit Brühe aufgießen.", "20 Min köcheln.", "Saure Sahne einrühren, nicht mehr kochen.", "Auf Nudeln oder Spätzle servieren."]},
+
+  {id:100,name:"Mushroom Risotto vegan",emoji:"🍄",cuisine:"Italienisch",type:"vegi",time:40,
+   ing:[{n:"Arborio Reis",u:"g",p:90},{n:"Gemischte Pilze",u:"g",p:200},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Weißwein",u:"ml",p:80},{n:"Gemüsebrühe",u:"ml",p:500},{n:"Hefeflocken",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:2},{n:"Thymian",u:"TL",p:0.5}],
+   steps:["Pilze scharf anbraten, beiseite.", "Zwiebeln in Öl, Reis rösten.", "Wein einrühren.", "Schöpferweise Brühe dazu, rühren (18 Min).", "Pilze und Hefeflocken unterrühren.", "Mit Olivenöl abschmecken."]},
+
+  {id:101,name:"Gazpacho",emoji:"🍅",cuisine:"Spanisch",type:"vegi",time:20,
+   ing:[{n:"Tomaten",u:"Stk",p:4},{n:"Gurke",u:"Stk",p:0.5},{n:"Paprika",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:1},{n:"Olivenöl",u:"EL",p:2},{n:"Sherryessig",u:"EL",p:1},{n:"Brot",u:"Scheiben",p:1}],
+   steps:["Alles grob würfeln.", "Im Mixer pürieren.", "Mit Essig, Öl, Salz abschmecken.", "2h kalt stellen.", "Mit Croutons und Garnitur servieren."]},
+
+  {id:102,name:"Spaghetti Aglio e Olio",emoji:"🧄",cuisine:"Italienisch",type:"vegi",time:15,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Knoblauch",u:"Zehen",p:4},{n:"Olivenöl",u:"EL",p:4},{n:"Chiliflocken",u:"TL",p:0.5},{n:"Petersilie",u:"EL",p:2},{n:"Parmesan",u:"g",p:30}],
+   steps:["Pasta in Salzwasser kochen.", "Knoblauch in Scheiben in Öl goldgelb braten.", "Chiliflocken kurz mitrösten.", "Pasta, 4 EL Kochwasser, Petersilie dazu.", "Mit Parmesan servieren."]},
+
+  {id:103,name:"Hähnchen-Caesar-Wrap",emoji:"🌯",cuisine:"Amerikanisch",type:"meat",time:15,
+   ing:[{n:"Hühnerbrust (gegart)",u:"g",p:150},{n:"Tortilla-Wraps",u:"Stk",p:2},{n:"Römersalat",u:"Blätter",p:3},{n:"Parmesan",u:"g",p:25},{n:"Caesar Dressing",u:"EL",p:3},{n:"Croutons",u:"EL",p:2}],
+   steps:["Hähnchen in Streifen schneiden.", "Tortilla mit Dressing bestreichen.", "Salat, Hähnchen, Croutons, Parmesan schichten.", "Fest aufrollen, halbieren."]},
+
+  {id:104,name:"Vegetarische Lasagne",emoji:"🫕",cuisine:"Italienisch",type:"vegi",time:60,
+   ing:[{n:"Lasagneblätter",u:"Stk",p:6},{n:"Spinat (TK)",u:"g",p:200},{n:"Ricotta",u:"g",p:200},{n:"Tomatensoße",u:"ml",p:300},{n:"Mozzarella",u:"g",p:125},{n:"Parmesan",u:"g",p:50},{n:"Zwiebeln",u:"Stk",p:1}],
+   steps:["Spinat auftauen, mit Ricotta, Salz, Pfeffer, Parmesan mischen.", "Tomatensoße mit Zwiebeln kochen.", "In Backform: Soße, Nudeln, Spinat-Ricotta, Soße.", "Wiederholen, mit Mozzarella und Parmesan abschließen.", "Bei 180°C 35 Min backen."]},
+
+  {id:105,name:"Erbsensuppe",emoji:"🫛",cuisine:"Deutsch",type:"vegi",time:35,
+   ing:[{n:"Getrocknete Erbsen",u:"g",p:200},{n:"Karotten",u:"Stk",p:2},{n:"Kartoffeln",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Gemüsebrühe",u:"ml",p:700},{n:"Majoran",u:"TL",p:0.5}],
+   steps:["Erbsen einweichen (über Nacht).", "Mit Gemüse und Brühe 30 Min kochen.", "Teilweise pürieren.", "Mit Majoran und Brot servieren."]},
+
+  {id:106,name:"Fischstäbchen & Püree",emoji:"🐟",cuisine:"International",type:"meat",time:25,
+   ing:[{n:"Fischstäbchen",u:"Stk",p:5},{n:"Kartoffeln",u:"g",p:300},{n:"Butter",u:"EL",p:2},{n:"Milch",u:"ml",p:80},{n:"Erbsen",u:"g",p:100},{n:"Salz",u:"TL",p:0.5}],
+   steps:["Kartoffeln kochen.", "Fischstäbchen nach Packung backen.", "Kartoffeln stampfen, mit Butter und Milch glatt rühren.", "Erbsen kochen.", "Zusammen servieren."]},
+
+  {id:107,name:"Griechische Bohnensuppe",emoji:"🫘",cuisine:"Griechisch",type:"vegi",time:50,
+   ing:[{n:"Weiße Bohnen",u:"g",p:200},{n:"Tomaten",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Sellerie",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:3},{n:"Oregano",u:"TL",p:1},{n:"Lorbeerblatt",u:"Stk",p:2}],
+   steps:["Bohnen einweichen.", "Mit Gemüse, Lorbeer und Wasser 40 Min kochen.", "Großzügig Olivenöl einrühren.", "Mit Oregano und Brot servieren."]},
+
+  {id:108,name:"Kräuterrührei",emoji:"🥚",cuisine:"International",type:"vegi",time:10,
+   ing:[{n:"Eier",u:"Stk",p:3},{n:"Butter",u:"EL",p:1},{n:"Schnittlauch",u:"EL",p:1},{n:"Petersilie",u:"EL",p:1},{n:"Dill",u:"TL",p:0.5},{n:"Brot",u:"Scheiben",p:2}],
+   steps:["Eier verquirlen.", "In Butter langsam stocken.", "Kräuter einrühren.", "Auf Brot servieren."]},
+
+  {id:109,name:"Hähnchen-Quesadilla",emoji:"🫓",cuisine:"Mexikanisch",type:"meat",time:20,
+   ing:[{n:"Hühnerbrust",u:"g",p:150},{n:"Tortillas",u:"Stk",p:2},{n:"Cheddar",u:"g",p:80},{n:"Paprika",u:"Stk",p:0.5},{n:"Salsa",u:"EL",p:2},{n:"Saure Sahne",u:"EL",p:2},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Hähnchen würzen und braten, in Streifen schneiden.", "Tortilla in Pfanne legen, eine Hälfte belegen.", "Käse, Hähnchen, Paprika drauf.", "Zuklappen, 3 Min je Seite.", "Mit Salsa und Sour Cream servieren."]},
+
+  {id:110,name:"Veggie Quesadilla",emoji:"🫓",cuisine:"Mexikanisch",type:"vegi",time:15,
+   ing:[{n:"Tortillas",u:"Stk",p:2},{n:"Cheddar",u:"g",p:80},{n:"Schwarze Bohnen",u:"EL",p:3},{n:"Mais",u:"EL",p:2},{n:"Paprika",u:"Stk",p:0.5},{n:"Saure Sahne",u:"EL",p:2}],
+   steps:["Tortilla belegen: Käse, Bohnen, Mais, Paprika.", "Zuklappen.", "In Pfanne von beiden Seiten goldbraun.", "Mit Sour Cream servieren."]},
+
+  {id:111,name:"Soba Nudeln kalt",emoji:"🍜",cuisine:"Japanisch",type:"vegi",time:20,
+   ing:[{n:"Soba-Nudeln",u:"g",p:100},{n:"Sojasoße",u:"EL",p:2},{n:"Sesamöl",u:"TL",p:1},{n:"Mirin",u:"EL",p:1},{n:"Gurke",u:"Stk",p:0.5},{n:"Sesam",u:"TL",p:1},{n:"Nori",u:"Blätter",p:1}],
+   steps:["Nudeln kochen, kalt abschrecken.", "Sojasoße, Mirin, Sesamöl zu Dressing.", "Nudeln mit Dressing mischen.", "Mit Gurkenstreifen, Nori und Sesam servieren."]},
+
+  {id:112,name:"Egg Fried Rice vegi",emoji:"🍚",cuisine:"Asiatisch",type:"vegi",time:20,
+   ing:[{n:"Reis",u:"g",p:200},{n:"Eier",u:"Stk",p:2},{n:"Frühlingszwiebeln",u:"Stk",p:2},{n:"Tiefkühlerbsen",u:"g",p:80},{n:"Sojasoße",u:"EL",p:2},{n:"Sesamöl",u:"TL",p:1},{n:"Ingwer",u:"cm",p:1}],
+   steps:["Kalten Reis (vom Vortag) verwenden.", "Ingwer und Erbsen kurz braten.", "Eier einschlagen, rühren.", "Reis einrühren.", "Sojasoße und Sesamöl drüber."]},
+
+  {id:113,name:"Creamy Tomaten-Pasta",emoji:"🍝",cuisine:"International",type:"vegi",time:25,
+   ing:[{n:"Pasta",u:"g",p:100},{n:"Tomaten (dose)",u:"g",p:200},{n:"Sahne",u:"ml",p:80},{n:"Knoblauch",u:"Zehen",p:2},{n:"Parmesan",u:"g",p:30},{n:"Basilikum",u:"Blätter",p:5},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Knoblauch in Öl anbraten.", "Tomaten dazu, 10 Min einkochen.", "Sahne einrühren.", "Pasta kochen, in Soße schwenken.", "Mit Parmesan und Basilikum."]},
+
+  {id:114,name:"Pulled Chicken Bowl",emoji:"🍗",cuisine:"Amerikanisch",type:"meat",time:40,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"BBQ-Soße",u:"EL",p:4},{n:"Reis",u:"g",p:80},{n:"Mais",u:"EL",p:3},{n:"Schwarze Bohnen",u:"g",p:100},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Hähnchen in Brühe 20 Min pochieren.", "Mit Gabeln zerzupfen.", "BBQ-Soße einrühren.", "Bowl bauen: Reis, Hähnchen, Bohnen, Mais.", "Mit Zwiebeln und Koriander garnieren."]},
+
+  {id:115,name:"Baba Ganoush",emoji:"🍆",cuisine:"Nahöstlich",type:"vegi",time:35,
+   ing:[{n:"Auberginen",u:"Stk",p:1.5},{n:"Tahini",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Zitronensaft",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:2},{n:"Pita-Brot",u:"Stk",p:2},{n:"Paprikapulver",u:"TL",p:0.5}],
+   steps:["Auberginen direkt auf Gas oder im Ofen verkohlen.", "Abkühlen, schälen.", "Mit Tahini, Knoblauch, Zitrone pürieren.", "Olivenöl und Paprika drüber.", "Mit Pita servieren."]},
+
+  {id:116,name:"Lachsnudeln",emoji:"🐟",cuisine:"International",type:"meat",time:25,
+   ing:[{n:"Tagliatelle",u:"g",p:100},{n:"Lachsfilet",u:"g",p:150},{n:"Sahne",u:"ml",p:150},{n:"Zitronensaft",u:"EL",p:1},{n:"Dill",u:"EL",p:1},{n:"Knoblauch",u:"Zehen",p:1},{n:"Parmesan",u:"g",p:25}],
+   steps:["Pasta kochen.", "Lachs würfeln, in Öl kurz anbraten.", "Knoblauch dazu, Sahne aufgießen.", "Zitrone und Dill einrühren.", "Pasta in Soße, Parmesan drüber."]},
+
+  {id:117,name:"Veggie Paella",emoji:"🫕",cuisine:"Spanisch",type:"vegi",time:45,
+   ing:[{n:"Paella-Reis",u:"g",p:100},{n:"Paprika (mix)",u:"Stk",p:2},{n:"Tomaten",u:"Stk",p:1},{n:"Artischockenherzen",u:"Stk",p:4},{n:"Grüne Bohnen",u:"g",p:80},{n:"Safran",u:"Prisen",p:2},{n:"Gemüsebrühe",u:"ml",p:400}],
+   steps:["Safran in Brühe auflösen.", "Gemüse in Paellapfanne anbraten.", "Reis einrühren.", "Brühe aufgießen, 20 Min ohne Rühren.", "Socarrat: letzte 2 Min Hitze erhöhen."]},
+
+  {id:118,name:"Hühner-Shawarma",emoji:"🫔",cuisine:"Nahöstlich",type:"meat",time:35,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Shawarma-Gewürz",u:"EL",p:1.5},{n:"Joghurt",u:"EL",p:3},{n:"Fladenbrot",u:"Stk",p:2},{n:"Tomaten",u:"Stk",p:1},{n:"Gurke",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Tahini",u:"EL",p:2}],
+   steps:["Hähnchen mit Gewürz und Joghurt marinieren.", "Scharf in Pfanne oder Grill braten.", "Fladenbrot aufwärmen.", "Mit Hähnchen, Gemüse und Tahini füllen."]},
+
+  {id:119,name:"Penne Arrabbiata",emoji:"🌶️",cuisine:"Italienisch",type:"vegi",time:25,
+   ing:[{n:"Penne",u:"g",p:100},{n:"Tomaten (dose)",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:3},{n:"Chiliflocken",u:"TL",p:0.5},{n:"Olivenöl",u:"EL",p:3},{n:"Petersilie",u:"EL",p:1},{n:"Parmesan",u:"g",p:30}],
+   steps:["Knoblauch und Chili in reichlich Öl anbraten.", "Tomaten dazu, 15 Min köcheln.", "Pasta kochen, in Soße schwenken.", "Mit Petersilie und Parmesan."]},
+
+  {id:120,name:"Porridge",emoji:"🍓",cuisine:"International",type:"vegi",time:10,
+   ing:[{n:"Haferflocken",u:"g",p:80},{n:"Milch/Hafermilch",u:"ml",p:200},{n:"Banane",u:"Stk",p:1},{n:"Beeren",u:"g",p:80},{n:"Honig",u:"TL",p:1},{n:"Zimt",u:"TL",p:0.5}],
+   steps:["Haferflocken in Milch bei mittlerer Hitze kochen.", "Rühren bis cremig.", "Mit Früchten und Honig toppen.", "Zimt drüber."]},
+
+  {id:121,name:"Entrecôte Kräuterbutter",emoji:"🥩",cuisine:"Französisch",type:"meat",time:20,
+   ing:[{n:"Entrecôte",u:"g",p:250},{n:"Butter",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:1},{n:"Petersilie",u:"EL",p:1},{n:"Thymian",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Fleisch temperieren.", "Kräuterbutter aus weicher Butter, Kräutern und Knoblauch formen.", "Gusseisenp fanne extrem heiß.", "2–3 Min je Seite.", "Kräuterbutter drauf, 5 Min ruhen."]},
+
+  {id:122,name:"Caprese-Salat",emoji:"🍅",cuisine:"Italienisch",type:"vegi",time:10,
+   ing:[{n:"Tomaten",u:"Stk",p:3},{n:"Mozzarella",u:"g",p:125},{n:"Basilikum",u:"Blätter",p:8},{n:"Olivenöl",u:"EL",p:2},{n:"Balsamico",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Tomaten und Mozzarella in Scheiben.", "Abwechselnd anrichten.", "Basilikum dazwischen.", "Olivenöl und Balsamico drüber.", "Mit Fleur de Sel servieren."]},
+
+  {id:123,name:"Hähnchen-Mango-Curry",emoji:"🥭",cuisine:"Asiatisch",type:"meat",time:35,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Mango",u:"Stk",p:0.5},{n:"Kokosmilch",u:"ml",p:200},{n:"Gelbe Currypaste",u:"EL",p:1.5},{n:"Paprika",u:"Stk",p:1},{n:"Reis",u:"g",p:80},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Hähnchen anbraten.", "Currypaste einrühren.", "Kokosmilch und Paprika dazu.", "15 Min köcheln.", "Mango zum Schluss einrühren.", "Mit Reis und Koriander."]},
+
+  {id:124,name:"Veganer Burger",emoji:"🍔",cuisine:"International",type:"vegi",time:30,
+   ing:[{n:"Veggie-Patty",u:"Stk",p:2},{n:"Burgerbrötchen",u:"Stk",p:2},{n:"Tomaten",u:"Scheiben",p:3},{n:"Salat",u:"Blätter",p:2},{n:"Avocado",u:"Stk",p:0.5},{n:"Rote Zwiebel",u:"Ringe",p:4},{n:"Vegane Mayo",u:"EL",p:2}],
+   steps:["Patties nach Packung braten.", "Brötchen toasten.", "Aufbauen: Mayo, Salat, Patty, Avocado, Tomate, Zwiebeln."]},
+
+  {id:125,name:"Shrimp Tacos",emoji:"🌮",cuisine:"Mexikanisch",type:"meat",time:20,
+   ing:[{n:"Garnelen",u:"g",p:200},{n:"Kleine Tortillas",u:"Stk",p:4},{n:"Rotkohl",u:"g",p:80},{n:"Limette",u:"Stk",p:1},{n:"Koriander",u:"Blätter",p:6},{n:"Avocado",u:"Stk",p:0.5},{n:"Chipotle-Mayo",u:"EL",p:2},{n:"Jalapeños",u:"Ringe",p:5}],
+   steps:["Garnelen mit Salz, Knoblauch, Chili würzen.", "2 Min je Seite in heißer Pfanne braten.", "Tortillas erwärmen.", "Rotkohl, Garnelen, Avocado füllen.", "Chipotle-Mayo, Koriander, Limette drüber."]}
+];
+
+// =====================================================================
+// FITNESS RECIPES (min 30g Protein / Portion, optimiert für 58kg/174cm)
+// =====================================================================
+const FIT = [
+  {id:201,name:"Hähnchenbrust & Süßkartoffel",emoji:"🍗",cuisine:"Clean Eating",type:"fit",time:35,
+   macros:{kcal:480,prot:52,carb:38,fat:9},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Süßkartoffeln",u:"g",p:200},{n:"Brokkoli",u:"g",p:150},{n:"Olivenöl",u:"EL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Paprikapulver",u:"TL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Süßkartoffeln würfeln, mit Öl und Paprikapulver bei 200°C 25 Min rösten.","Hähnchen flach klopfen, würzen.","In Grillpfanne 4 Min je Seite braten.","Brokkoli 3 Min in Salzwasser blanchieren.","Alles auf Teller anrichten, mit Knoblauch-Olivenöl beträufeln.","Mit Salz, Pfeffer und Zitrone abschmecken."]},
+
+  {id:202,name:"Lachs mit Quinoa & Spinat",emoji:"🐟",cuisine:"Clean Eating",type:"fit",time:25,
+   macros:{kcal:510,prot:45,carb:32,fat:18},
+   ing:[{n:"Lachsfilet",u:"g",p:200},{n:"Quinoa",u:"g",p:80},{n:"Spinat frisch",u:"g",p:150},{n:"Zitronen",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Quinoa in doppelter Menge Wasser 15 Min kochen.","Lachs würzen, Haut-unten in Pfanne 4 Min bei mittlerer Hitze.","Wenden, 2 Min fertig garen.","Spinat mit Knoblauch in Öl zusammenfallen lassen.","Quinoa mit Spinat mischen, Lachs drauf, Zitrone drüber."]},
+
+  {id:203,name:"Turkey Meatball Bowl",emoji:"🫙",cuisine:"High Protein",type:"fit",time:30,
+   macros:{kcal:490,prot:48,carb:35,fat:12},
+   ing:[{n:"Truthahn-Hackfleisch",u:"g",p:300},{n:"Reis",u:"g",p:80},{n:"Tomatensoße",u:"ml",p:150},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ei",u:"Stk",p:1},{n:"Petersilie",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Hackfleisch mit Ei, Gewürzen, Petersilie mischen.","Kleine Bällchen formen.","Bei 200°C 15 Min backen oder in Pfanne braten.","Reis kochen.","Tomatensoße erwärmen, Bällchen einlegen.","Bowl: Reis, Soße mit Bällchen, Petersilie drüber."]},
+
+  {id:204,name:"Egg White Omelette mit Gemüse",emoji:"🥚",cuisine:"High Protein",type:"fit",time:15,
+   macros:{kcal:320,prot:35,carb:12,fat:10},
+   ing:[{n:"Eiweiß (6 Stk)",u:"",p:0},{n:"Whole Eggs",u:"Stk",p:2},{n:"Paprika",u:"Stk",p:1},{n:"Spinat",u:"g",p:80},{n:"Champignons",u:"g",p:100},{n:"Feta",u:"g",p:40},{n:"Olivenöl",u:"TL",p:1}],
+   steps:["Gemüse klein schneiden, kurz in Pfanne anbraten.","Eiweiß und ganze Eier verquirlen.","Eiermasse über Gemüse gießen.","Bei mittlerer Hitze stocken lassen.","Feta drüber, einmalten, servieren."]},
+
+  {id:205,name:"Thunfisch-Reis-Bowl",emoji:"🐟",cuisine:"High Protein",type:"fit",time:15,
+   macros:{kcal:440,prot:42,carb:45,fat:8},
+   ing:[{n:"Thunfisch in Wasser (dose)",u:"g",p:280},{n:"Reis",u:"g",p:100},{n:"Avocado",u:"Stk",p:0.5},{n:"Gurke",u:"Stk",p:0.5},{n:"Sojasoße",u:"EL",p:1},{n:"Sesam",u:"TL",p:1},{n:"Limette",u:"Stk",p:0.5}],
+   steps:["Reis kochen, leicht abkühlen.","Thunfisch abtropfen.","Bowl aufbauen: Reis, Thunfisch, Avocado, Gurke.","Sojasoße und Limettensaft drüber.","Mit Sesam bestreuen."]},
+
+  {id:206,name:"Hühnchen-Protein-Wrap",emoji:"🌯",cuisine:"High Protein",type:"fit",time:20,
+   macros:{kcal:460,prot:44,carb:38,fat:11},
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Vollkorn-Wraps",u:"Stk",p:2},{n:"Griechischer Joghurt",u:"EL",p:4},{n:"Gurke",u:"Stk",p:0.5},{n:"Tomaten",u:"Stk",p:1},{n:"Salat",u:"Blätter",p:3},{n:"Gewürze",u:"TL",p:1}],
+   steps:["Hähnchen würzen, in Pfanne grillen.","In Streifen schneiden.","Wraps mit Joghurt bestreichen.","Salat, Tomaten, Gurke, Hähnchen schichten.","Fest aufrollen."]},
+
+  {id:207,name:"Beef & Brokkoli mit Reis",emoji:"🥩",cuisine:"High Protein",type:"fit",time:25,
+   macros:{kcal:520,prot:48,carb:40,fat:14},
+   ing:[{n:"Rindersteak (mager)",u:"g",p:220},{n:"Brokkoli",u:"g",p:200},{n:"Reis",u:"g",p:80},{n:"Sojasoße",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ingwer",u:"cm",p:2},{n:"Sesamöl",u:"TL",p:1}],
+   steps:["Reis kochen.","Steak in Streifen, sehr heiß und schnell anbraten.","Brokkoli im Wok 3 Min braten.","Alles zusammen, Sojasoße, Knoblauch, Ingwer.","Auf Reis servieren."]},
+
+  {id:208,name:"Cottage Cheese Bowl",emoji:"🧀",cuisine:"High Protein",type:"fit",time:10,
+   macros:{kcal:380,prot:38,carb:28,fat:10},
+   ing:[{n:"Hüttenkäse (Magerquark)",u:"g",p:300},{n:"Beeren",u:"g",p:100},{n:"Haferflocken",u:"g",p:50},{n:"Honig",u:"TL",p:1},{n:"Mandeln",u:"EL",p:2},{n:"Chia-Samen",u:"TL",p:1}],
+   steps:["Hüttenkäse in Bowl geben.","Mit Beeren, Haferflocken und Mandeln toppen.","Chia-Samen drüber.","Mit Honig beträufeln."]},
+
+  {id:209,name:"Gegrillter Lachs & Spargel",emoji:"🌿",cuisine:"Clean Eating",type:"fit",time:20,
+   macros:{kcal:420,prot:40,carb:8,fat:22},
+   ing:[{n:"Lachsfilet",u:"g",p:220},{n:"Grüner Spargel",u:"g",p:250},{n:"Olivenöl",u:"EL",p:1},{n:"Zitrone",u:"Stk",p:1},{n:"Dill",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Spargel mit Öl, Salz einreiben.","Im Ofen bei 200°C 12 Min rösten.","Lachs würzen, in Grillpfanne 3–4 Min je Seite.","Mit Dill und Zitronensaft servieren.","Low Carb – ideal nach dem Training!"]},
+
+  {id:210,name:"Griechischer Hähnchensalat",emoji:"🥗",cuisine:"Mediterran",type:"fit",time:20,
+   macros:{kcal:420,prot:45,carb:12,fat:16},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Gurke",u:"Stk",p:1},{n:"Tomaten",u:"Stk",p:2},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Feta",u:"g",p:60},{n:"Oliven",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:1},{n:"Oregano",u:"TL",p:1}],
+   steps:["Hähnchen mit Oregano und Öl würzen, grillen.","In Scheiben schneiden.","Gemüse würfeln, mit Feta und Oliven mischen.","Dressing: Olivenöl, Zitrone, Oregano.","Hähnchen drauf."]},
+
+  {id:211,name:"Protein-Overnight-Oats",emoji:"🌙",cuisine:"High Protein",type:"fit",time:5,
+   macros:{kcal:450,prot:32,carb:52,fat:10},
+   ing:[{n:"Haferflocken",u:"g",p:80},{n:"Griechischer Joghurt",u:"g",p:150},{n:"Proteinpulver (Vanille)",u:"g",p:30},{n:"Milch",u:"ml",p:100},{n:"Banane",u:"Stk",p:1},{n:"Nussbutter",u:"EL",p:1},{n:"Chia-Samen",u:"TL",p:1}],
+   steps:["Abends: Haferflocken, Joghurt, Milch, Protein, Chia mischen.","In Glas füllen, über Nacht kühlen.","Morgens: Banane und Nussbutter drauf.","Fertig – kein Kochen nötig!"]},
+
+  {id:212,name:"Hähnchen-Süßkartoffel-Curry",emoji:"🍠",cuisine:"High Protein",type:"fit",time:35,
+   macros:{kcal:500,prot:42,carb:44,fat:12},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Süßkartoffeln",u:"g",p:200},{n:"Kokosmilch (light)",u:"ml",p:150},{n:"Rote Currypaste",u:"EL",p:1},{n:"Spinat",u:"g",p:100},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2}],
+   steps:["Hähnchen würfeln, scharf anbraten.","Zwiebeln, Knoblauch, Currypaste einrühren.","Süßkartoffeln würfeln dazu.","Kokosmilch aufgießen, 20 Min köcheln.","Spinat unterrühren.","Ohne Reis essen für weniger Carbs!"]},
+
+  {id:213,name:"Mageres Rindersteak & Salat",emoji:"🥩",cuisine:"Clean Eating",type:"fit",time:20,
+   macros:{kcal:400,prot:48,carb:8,fat:16},
+   ing:[{n:"Rumpsteak (mager)",u:"g",p:250},{n:"Rucola",u:"g",p:80},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Parmesan",u:"g",p:20},{n:"Olivenöl",u:"EL",p:1},{n:"Balsamico",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Steak 30 Min temperieren.","Grillpfanne extrem heiß.","2–3 Min je Seite (medium).","5 Min ruhen lassen.","Rucola-Salat mit Olivenöl und Balsamico anmachen.","Steak aufschneiden, drauflegen."]},
+
+  {id:214,name:"Edamame-Protein-Bowl",emoji:"🫛",cuisine:"Vegan Protein",type:"fit",time:20,
+   macros:{kcal:440,prot:31,carb:42,fat:14},
+   ing:[{n:"Edamame (geschält)",u:"g",p:200},{n:"Quinoa",u:"g",p:80},{n:"Avocado",u:"Stk",p:0.5},{n:"Karotten",u:"Stk",p:1},{n:"Gurke",u:"Stk",p:0.5},{n:"Sojasoße",u:"EL",p:2},{n:"Sesam",u:"TL",p:1},{n:"Limette",u:"Stk",p:1}],
+   steps:["Quinoa kochen.","Edamame in Salzwasser 5 Min kochen.","Karotten raspeln.","Bowl aufbauen: Quinoa, Edamame, Avocado, Gemüse.","Mit Sojasoße, Limette und Sesam abschmecken."]},
+
+  {id:215,name:"Hähnchen-Gemüse-Pfanne",emoji:"🍳",cuisine:"Clean Eating",type:"fit",time:20,
+   macros:{kcal:380,prot:44,carb:18,fat:11},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Zucchini",u:"Stk",p:1},{n:"Paprika",u:"Stk",p:1},{n:"Champignons",u:"g",p:150},{n:"Knoblauch",u:"Zehen",p:2},{n:"Olivenöl",u:"EL",p:1},{n:"Kräuter der Provence",u:"TL",p:1}],
+   steps:["Hähnchen in Würfel, scharf anbraten.","Gemüse dazu, 5 Min mitbraten.","Knoblauch und Kräuter einrühren.","Mit Zitronensaft abschmecken.","Low Carb – direkt so essen!"]},
+
+  {id:216,name:"Lachsburger (ohne Bun)",emoji:"🐟",cuisine:"High Protein",type:"fit",time:25,
+   macros:{kcal:390,prot:38,carb:6,fat:22},
+   ing:[{n:"Lachs",u:"g",p:250},{n:"Dill",u:"EL",p:1},{n:"Zitrone",u:"Stk",p:0.5},{n:"Avocado",u:"Stk",p:0.5},{n:"Gurke",u:"Stk",p:0.5},{n:"Salat",u:"Blätter",p:4},{n:"Olivenöl",u:"TL",p:1}],
+   steps:["Lachs mit Dill und Zitrone würzen.","In Pfanne oder Ofen garen.","Avocado zerdrücken.","Salat-Wrap: Avocado, Lachs, Gurke in Salatblätter.","Mit Zitronensaft und Pfeffer abschmecken."]},
+
+  {id:217,name:"Quark-Protein-Bowl",emoji:"🍓",cuisine:"High Protein",type:"fit",time:5,
+   macros:{kcal:350,prot:38,carb:30,fat:4},
+   ing:[{n:"Magerquark",u:"g",p:300},{n:"Beeren (mix)",u:"g",p:120},{n:"Haferflocken",u:"g",p:40},{n:"Honig",u:"TL",p:1},{n:"Walnüsse",u:"g",p:20},{n:"Zimt",u:"TL",p:0.3}],
+   steps:["Magerquark in Bowl geben.","Haferflocken und Nüsse drüber.","Beeren darauf verteilen.","Honig und Zimt abschließen.","Schnell, einfach, proteinreich!"]},
+
+  {id:218,name:"Gegrillte Garnelen & Zoodles",emoji:"🦐",cuisine:"Low Carb",type:"fit",time:20,
+   macros:{kcal:310,prot:36,carb:8,fat:12},
+   ing:[{n:"Garnelen",u:"g",p:250},{n:"Zucchini (zu Nudeln)",u:"Stk",p:2},{n:"Knoblauch",u:"Zehen",p:3},{n:"Chili",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:1},{n:"Zitrone",u:"Stk",p:1},{n:"Petersilie",u:"EL",p:2}],
+   steps:["Zucchini mit Spiralschneider zu Nudeln drehen.","Garnelen mit Knoblauch und Chili in Öl 2 Min je Seite braten.","Zoodles kurz in Pfanne schwenken.","Alles zusammen, Zitronensaft und Petersilie.","Super low carb!"]},
+
+  {id:219,name:"Hähnchen-Caesar ohne Croutons",emoji:"🥗",cuisine:"Clean Eating",type:"fit",time:15,
+   macros:{kcal:400,prot:46,carb:6,fat:18},
+   ing:[{n:"Hühnerbrust (gegrillt)",u:"g",p:250},{n:"Römersalat",u:"Stk",p:0.5},{n:"Parmesan",u:"g",p:25},{n:"Caesar Dressing (light)",u:"EL",p:2},{n:"Zitronensaft",u:"EL",p:1},{n:"Schwarzer Pfeffer",u:"TL",p:0.5}],
+   steps:["Hähnchen grillen oder braten, 5 Min ruhen.","Salat in Stücke reißen.","Mit Dressing und Parmesan mischen.","Hähnchen in Streifen drauflegen.","Mit Pfeffer und Zitrone abschmecken."]},
+
+  {id:219,name:"Hähnchen-Caesar ohne Croutons",emoji:"🥗",cuisine:"Clean Eating",type:"fit",time:15,
+   macros:{kcal:400,prot:46,carb:6,fat:18},
+   ing:[{n:"Hühnerbrust (gegrillt)",u:"g",p:250},{n:"Römersalat",u:"Stk",p:0.5},{n:"Parmesan",u:"g",p:25},{n:"Caesar Dressing (light)",u:"EL",p:2},{n:"Zitronensaft",u:"EL",p:1},{n:"Schwarzer Pfeffer",u:"TL",p:0.5}],
+   steps:["Hähnchen grillen oder braten, 5 Min ruhen.","Salat in Stücke reißen.","Mit Dressing und Parmesan mischen.","Hähnchen in Streifen drauflegen.","Mit Pfeffer und Zitrone abschmecken."]},
+
+  {id:220,name:"Chili-Hähnchen & schwarze Bohnen",emoji:"🌶️",cuisine:"High Protein",type:"fit",time:30,
+   macros:{kcal:490,prot:50,carb:38,fat:10},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Schwarze Bohnen",u:"g",p:150},{n:"Tomaten (dose)",u:"g",p:200},{n:"Paprika",u:"Stk",p:1},{n:"Chipotle",u:"TL",p:1},{n:"Kreuzkümmel",u:"TL",p:1},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Hähnchen würfeln, scharf anbraten.","Paprika, Gewürze dazu.","Tomaten und Bohnen einrühren.","20 Min köcheln.","Mit frischem Koriander servieren.","Ohne Reis für weniger Carbs."]},
+
+  // ── 30 NEUE FITNESS-GERICHTE ──
+  {id:221,name:"Rindfleisch-Gemüse-Bowl",emoji:"🥩",cuisine:"High Protein",type:"fit",time:25,
+   macros:{kcal:500,prot:46,carb:28,fat:20},
+   ing:[{n:"Rinderhackfleisch (mager)",u:"g",p:250},{n:"Brokkoli",u:"g",p:150},{n:"Paprika",u:"Stk",p:1},{n:"Reis",u:"g",p:60},{n:"Sojasoße",u:"EL",p:2},{n:"Knoblauch",u:"Zehen",p:2},{n:"Sesamöl",u:"TL",p:1}],
+   steps:["Reis kochen.","Hackfleisch in Pfanne krümelig braten.","Gemüse dazu, 4 Min mitbraten.","Sojasoße, Knoblauch und Sesamöl einrühren.","Auf Reis servieren."]},
+
+  {id:222,name:"Thunfisch-Avocado-Salat",emoji:"🥑",cuisine:"Clean Eating",type:"fit",time:10,
+   macros:{kcal:380,prot:35,carb:6,fat:22},
+   ing:[{n:"Thunfisch (dose)",u:"g",p:280},{n:"Avocado",u:"Stk",p:1},{n:"Rote Zwiebel",u:"Stk",p:0.25},{n:"Limettensaft",u:"EL",p:2},{n:"Koriander",u:"Blätter",p:5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Thunfisch abtropfen.","Avocado würfeln.","Alles mischen, mit Limette würzen.","Mit Koriander und Pfeffer abschmecken.","Auf Reiswaffeln oder Salat servieren."]},
+
+  {id:223,name:"Putenbrust Saltimbocca",emoji:"🍗",cuisine:"Italienisch",type:"fit",time:20,
+   macros:{kcal:360,prot:48,carb:2,fat:14},
+   ing:[{n:"Putenbrust",u:"g",p:280},{n:"Parmaschinken",u:"Scheiben",p:4},{n:"Salbei",u:"Blätter",p:6},{n:"Weißwein",u:"EL",p:3},{n:"Butter",u:"TL",p:1},{n:"Olivenöl",u:"TL",p:1}],
+   steps:["Putenbrust dünn klopfen.","Salbei drauf, Schinken drüber, mit Zahnstocher fixieren.","In Olivenöl 3 Min je Seite braten.","Mit Wein ablöschen, kurz einkochen.","Mit Zitrone und Salat servieren."]},
+
+  {id:224,name:"High-Protein Linsensalat",emoji:"🫘",cuisine:"Vegan Protein",type:"fit",time:20,
+   macros:{kcal:420,prot:32,carb:42,fat:10},
+   ing:[{n:"Grüne Linsen",u:"g",p:200},{n:"Kirschtomaten",u:"Stk",p:10},{n:"Gurke",u:"Stk",p:0.5},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Petersilie",u:"Bund",p:0.5},{n:"Olivenöl",u:"EL",p:1},{n:"Zitronensaft",u:"EL",p:2}],
+   steps:["Linsen 15 Min kochen, abkühlen.","Gemüse würfeln, Petersilie hacken.","Alles mischen.","Mit Öl, Zitrone, Salz abschmecken.","Kühl servieren oder mit Hähnchen aufwerten."]},
+
+  {id:225,name:"Garnelenspieße & Zucchini",emoji:"🦐",cuisine:"Low Carb",type:"fit",time:20,
+   macros:{kcal:290,prot:38,carb:6,fat:10},
+   ing:[{n:"Garnelen",u:"g",p:280},{n:"Zucchini",u:"Stk",p:2},{n:"Knoblauch",u:"Zehen",p:3},{n:"Zitrone",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:1},{n:"Paprikapulver",u:"TL",p:1},{n:"Petersilie",u:"EL",p:2}],
+   steps:["Garnelen und Zucchini auf Spieße stecken.","Mit Öl, Knoblauch, Paprika einreiben.","Auf Grill oder Grillpfanne 3 Min je Seite.","Mit Zitrone und Petersilie servieren."]},
+
+  {id:226,name:"Lean Beef Burger (Salat statt Bun)",emoji:"🥗",cuisine:"High Protein",type:"fit",time:20,
+   macros:{kcal:420,prot:45,carb:8,fat:20},
+   ing:[{n:"Rinderhackfleisch (mager)",u:"g",p:250},{n:"Eisbergsalat",u:"Blätter",p:4},{n:"Tomaten",u:"Stk",p:1},{n:"Rote Zwiebel",u:"Scheiben",p:4},{n:"Senf",u:"TL",p:1},{n:"Worcestershiresauce",u:"TL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Hackfleisch mit Worcestershire, Salz und Pfeffer mischen.","Zu Patty formen, 4 Min je Seite grillen.","Salatblätter als Bun nutzen.","Mit Tomaten, Zwiebeln, Senf belegen."]},
+
+  {id:227,name:"Hähnchen-Teriyaki & Brokkoli",emoji:"🥦",cuisine:"Japanisch",type:"fit",time:25,
+   macros:{kcal:440,prot:48,carb:28,fat:10},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Brokkoli",u:"g",p:200},{n:"Sojasoße",u:"EL",p:3},{n:"Honig",u:"TL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Ingwer",u:"cm",p:2},{n:"Sesamkörner",u:"TL",p:1}],
+   steps:["Sojasoße, Honig, Knoblauch, Ingwer zur Teriyaki-Marinade mischen.","Hähnchen 10 Min marinieren.","Scharf braten bis karamellisiert.","Brokkoli daneben dämpfen oder blanchieren.","Mit Sesam bestreuen."]},
+
+  {id:228,name:"Protein-Pfannkuchen",emoji:"🥞",cuisine:"High Protein",type:"fit",time:15,
+   macros:{kcal:420,prot:40,carb:35,fat:10},
+   ing:[{n:"Haferflocken",u:"g",p:80},{n:"Magerquark",u:"g",p:150},{n:"Eier",u:"Stk",p:2},{n:"Backpulver",u:"TL",p:0.5},{n:"Vanille",u:"TL",p:0.5},{n:"Beeren",u:"g",p:80},{n:"Honig",u:"TL",p:1}],
+   steps:["Haferflocken kurz mixen zu Mehl.","Mit Quark, Eiern, Backpulver verrühren.","In Pfanne mit wenig Öl von beiden Seiten braten.","Mit Beeren und Honig servieren."]},
+
+  {id:229,name:"Weißer Fisch & Süßkartoffel",emoji:"🐟",cuisine:"Clean Eating",type:"fit",time:30,
+   macros:{kcal:400,prot:38,carb:36,fat:7},
+   ing:[{n:"Kabeljau/Tilapia",u:"g",p:250},{n:"Süßkartoffeln",u:"g",p:200},{n:"Zitrone",u:"Stk",p:1},{n:"Paprikapulver",u:"TL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Olivenöl",u:"TL",p:1}],
+   steps:["Süßkartoffeln würfeln, im Ofen bei 200°C 20 Min rösten.","Fisch mit Paprikapulver und Salz würzen.","In Pfanne 3–4 Min je Seite.","Mit Zitrone und Knoblauch servieren."]},
+
+  {id:230,name:"Hähnchen-Spinat-Stuffed Peppers",emoji:"🫑",cuisine:"High Protein",type:"fit",time:40,
+   macros:{kcal:420,prot:44,carb:22,fat:12},
+   ing:[{n:"Paprika (groß)",u:"Stk",p:2},{n:"Hühnerbrust",u:"g",p:200},{n:"Spinat",u:"g",p:100},{n:"Reis",u:"g",p:50},{n:"Tomatensoße",u:"EL",p:4},{n:"Feta",u:"g",p:40},{n:"Gewürze",u:"TL",p:1}],
+   steps:["Paprika halbieren, entkernen.","Hähnchen würfeln, anbraten.","Spinat und Reis dazu, würzen.","Paprika damit füllen.","Bei 180°C 25 Min backen.","Mit Feta bestreuen."]},
+
+  {id:231,name:"Eiweiß-Rührei & Lachs",emoji:"🥚",cuisine:"High Protein",type:"fit",time:10,
+   macros:{kcal:340,prot:40,carb:2,fat:16},
+   ing:[{n:"Eiweiß (5 Stk)",u:"",p:0},{n:"Ganze Eier",u:"Stk",p:1},{n:"Räucherlachs",u:"g",p:80},{n:"Schnittlauch",u:"EL",p:1},{n:"Butter",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Eiweiß und ganzes Ei verquirlen.","In wenig Butter langsam stocken.","Räucherlachs in Stücke, unterrühren.","Mit Schnittlauch servieren.","Kein Brot nötig – pure Protein!"]},
+
+  {id:232,name:"Kichererbsen-Spinat-Curry",emoji:"🫘",cuisine:"Vegan Protein",type:"fit",time:30,
+   macros:{kcal:430,prot:20,carb:48,fat:12},
+   ing:[{n:"Kichererbsen",u:"g",p:300},{n:"Spinat",u:"g",p:150},{n:"Kokosmilch (light)",u:"ml",p:150},{n:"Tomaten (dose)",u:"g",p:200},{n:"Rote Currypaste",u:"EL",p:1},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:2}],
+   steps:["Zwiebeln und Knoblauch anbraten.","Currypaste einrühren.","Kichererbsen und Tomaten dazu.","Kokosmilch aufgießen, 15 Min köcheln.","Spinat unterrühren.","Mit Naan oder ohne servieren."]},
+
+  {id:233,name:"Rinderfilet-Streifen & Spargel",emoji:"🥩",cuisine:"Clean Eating",type:"fit",time:20,
+   macros:{kcal:410,prot:46,carb:6,fat:20},
+   ing:[{n:"Rinderfilet",u:"g",p:220},{n:"Grüner Spargel",u:"g",p:250},{n:"Knoblauch",u:"Zehen",p:2},{n:"Olivenöl",u:"EL",p:1},{n:"Zitrone",u:"Stk",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Filet in Streifen, sehr heiß anbraten – 2 Min.","Spargel parallel in Grillpfanne.","Knoblauch dazu.","Mit Zitrone und Meersalz abschmecken.","Einfach, sauber, proteinreich."]},
+
+  {id:234,name:"Skyr-Bowl mit Nüssen",emoji:"🍓",cuisine:"High Protein",type:"fit",time:5,
+   macros:{kcal:370,prot:34,carb:32,fat:12},
+   ing:[{n:"Skyr (Isländischer Joghurt)",u:"g",p:300},{n:"Beeren",u:"g",p:100},{n:"Mandeln",u:"g",p:20},{n:"Walnüsse",u:"g",p:15},{n:"Leinsamen",u:"TL",p:1},{n:"Honig",u:"TL",p:1}],
+   steps:["Skyr in Bowl geben.","Nüsse und Leinsamen drüber.","Beeren dazu.","Mit Honig abschließen.","Ideal nach dem Training oder morgens."]},
+
+  {id:235,name:"Gebackener Thunfisch-Mais-Taler",emoji:"🐟",cuisine:"High Protein",type:"fit",time:20,
+   macros:{kcal:380,prot:36,carb:22,fat:14},
+   ing:[{n:"Thunfisch (dose)",u:"g",p:280},{n:"Mais",u:"EL",p:4},{n:"Eier",u:"Stk",p:1},{n:"Haferflocken",u:"EL",p:3},{n:"Zwiebel",u:"Stk",p:0.25},{n:"Paprikapulver",u:"TL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Thunfisch mit Ei, Mais, Haferflocken, Gewürzen mischen.","Zu flachen Talern formen.","Im Ofen bei 190°C 15 Min backen.","Mit Joghurt-Dip und Salat servieren."]},
+
+  {id:236,name:"Hähnchen-Quinoa-Tabbouleh",emoji:"🌿",cuisine:"Mediterran",type:"fit",time:25,
+   macros:{kcal:460,prot:42,carb:38,fat:10},
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Quinoa",u:"g",p:80},{n:"Petersilie",u:"Bund",p:1},{n:"Minze",u:"Blätter",p:10},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Zitronensaft",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:1}],
+   steps:["Quinoa kochen, abkühlen.","Hähnchen würzen, grillen.","Petersilie und Minze fein hacken.","Quinoa mit Kräutern, Tomaten mischen.","Dressing: Zitrone und Öl.","Hähnchen drauf."]},
+
+  {id:237,name:"Tofu Misoyaki",emoji:"🫘",cuisine:"Japanisch",type:"fit",time:25,
+   macros:{kcal:360,prot:30,carb:18,fat:16},
+   ing:[{n:"Fester Tofu",u:"g",p:300},{n:"Misopaste",u:"EL",p:2},{n:"Sojasoße",u:"EL",p:1},{n:"Honig",u:"TL",p:1},{n:"Sesamöl",u:"TL",p:1},{n:"Brokkoli",u:"g",p:150},{n:"Sesam",u:"TL",p:1}],
+   steps:["Tofu ausdrücken, in Scheiben schneiden.","Miso, Sojasoße, Honig, Sesamöl zur Marinade.","Tofu 15 Min marinieren.","In Pfanne von beiden Seiten karamellisieren.","Brokkoli dämpfen, mit Sesam servieren."]},
+
+  {id:238,name:"Steak-Salat mit Chimichurri",emoji:"🥩",cuisine:"Argentinisch",type:"fit",time:20,
+   macros:{kcal:430,prot:44,carb:8,fat:22},
+   ing:[{n:"Rumpsteak",u:"g",p:220},{n:"Rucola",u:"g",p:80},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Petersilie",u:"Bund",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Chili",u:"Stk",p:0.5},{n:"Olivenöl",u:"EL",p:2},{n:"Rotweinessig",u:"EL",p:1}],
+   steps:["Chimichurri: Petersilie, Knoblauch, Chili, Öl, Essig fein mixen.","Steak stark erhitzen, 2–3 Min je Seite.","5 Min ruhen, aufschneiden.","Auf Rucola und Tomaten legen.","Chimichurri großzügig drüber."]},
+
+  {id:239,name:"Hähnchen-Avocado-Wrap Low Carb",emoji:"🌯",cuisine:"Low Carb",type:"fit",time:15,
+   macros:{kcal:410,prot:40,carb:10,fat:22},
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Avocado",u:"Stk",p:1},{n:"Salat-Wrap (Römersalat)",u:"Blätter",p:4},{n:"Rote Zwiebel",u:"Stk",p:0.25},{n:"Limettensaft",u:"EL",p:1},{n:"Koriander",u:"Blätter",p:5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Hähnchen würzen und grillen.","Avocado zerdrücken, mit Limette würzen.","Salatblätter flach auslegen.","Avocado, Hähnchen, Zwiebeln, Koriander einrollen.","Kein Mehl, kein Brot, voll protein!"]},
+
+  {id:240,name:"Magertopfen mit Leinsamen",emoji:"🧀",cuisine:"High Protein",type:"fit",time:5,
+   macros:{kcal:310,prot:33,carb:18,fat:8},
+   ing:[{n:"Magertopfen/Magerquark",u:"g",p:300},{n:"Leinsamen",u:"EL",p:2},{n:"Banane",u:"Stk",p:0.5},{n:"Zimt",u:"TL",p:0.5},{n:"Honig",u:"TL",p:1},{n:"Walnüsse",u:"g",p:15}],
+   steps:["Topfen in Schüssel.","Leinsamen, Nüsse, Zimt drüber.","Banane in Scheiben dazu.","Mit Honig fertigstellen.","Proteinbombe mit 5 Min Aufwand."]},
+
+  {id:241,name:"Lachs-Quinoa-Avocado-Bowl",emoji:"🐟",cuisine:"Clean Eating",type:"fit",time:25,
+   macros:{kcal:550,prot:42,carb:34,fat:24},
+   ing:[{n:"Lachsfilet",u:"g",p:180},{n:"Quinoa",u:"g",p:80},{n:"Avocado",u:"Stk",p:0.5},{n:"Edamame",u:"g",p:80},{n:"Gurke",u:"Stk",p:0.5},{n:"Sojasoße",u:"EL",p:2},{n:"Sesam",u:"TL",p:1}],
+   steps:["Quinoa kochen.","Lachs würzen, in Pfanne 4 Min je Seite.","Alle Zutaten in Bowl anrichten.","Mit Sojasoße und Sesam drüber."]},
+
+  {id:242,name:"Griechisches Hähnchen mit Feta",emoji:"🍗",cuisine:"Griechisch",type:"fit",time:30,
+   macros:{kcal:430,prot:50,carb:8,fat:18},
+   ing:[{n:"Hühnerbrust",u:"g",p:260},{n:"Feta",u:"g",p:60},{n:"Kirschtomaten",u:"Stk",p:8},{n:"Oliven",u:"EL",p:2},{n:"Oregano",u:"TL",p:1},{n:"Olivenöl",u:"EL",p:1},{n:"Zitrone",u:"Stk",p:0.5}],
+   steps:["Hähnchen mit Oregano, Öl, Zitrone marinieren.","In Ofenform geben.","Tomaten und Oliven dazu.","Bei 200°C 20 Min backen.","Feta die letzten 5 Min drüber."]},
+
+  {id:243,name:"Hähnchenreis mit Gemüsebrühe",emoji:"🍚",cuisine:"Clean Eating",type:"fit",time:30,
+   macros:{kcal:450,prot:44,carb:46,fat:8},
+   ing:[{n:"Hühnerbrust",u:"g",p:250},{n:"Basmati Reis",u:"g",p:90},{n:"Gemüsebrühe",u:"ml",p:400},{n:"Karotten",u:"Stk",p:1},{n:"Sellerie",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Hähnchen in Brühe mit Gemüse 20 Min kochen.","Herausnehmen, in Stücke reißen.","Reis kochen.","Brühe als Soße verwenden.","Alles in Bowl, Petersilie drüber."]},
+
+  {id:244,name:"Rinder-Bulgur-Bowl",emoji:"🥩",cuisine:"Naher Osten",type:"fit",time:30,
+   macros:{kcal:490,prot:40,carb:42,fat:16},
+   ing:[{n:"Rinderhackfleisch",u:"g",p:200},{n:"Bulgur",u:"g",p:80},{n:"Tomaten",u:"Stk",p:2},{n:"Petersilie",u:"Bund",p:0.5},{n:"Minze",u:"Blätter",p:8},{n:"Zitronensaft",u:"EL",p:2},{n:"Zimt",u:"TL",p:0.3}],
+   steps:["Bulgur mit kochendem Wasser quellen lassen.","Hackfleisch mit Zimt und Gewürzen braten.","Bulgur mit Kräutern und Tomaten mischen.","Fleisch drauf, mit Zitrone abschmecken."]},
+
+  {id:245,name:"Seelachs mit Gemüse",emoji:"🐟",cuisine:"Clean Eating",type:"fit",time:25,
+   macros:{kcal:330,prot:42,carb:14,fat:8},
+   ing:[{n:"Seelachsfilet",u:"g",p:280},{n:"Zucchini",u:"Stk",p:1},{n:"Karotten",u:"Stk",p:2},{n:"Zitrone",u:"Stk",p:1},{n:"Olivenöl",u:"TL",p:1},{n:"Dill",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Gemüse in Streifen, 5 Min in Pfanne anbraten.","Fisch würzen, in separater Pfanne 3–4 Min je Seite.","Gemeinsam servieren.","Mit Dill und Zitrone abschmecken."]},
+
+  {id:246,name:"Protein-Müsli selbstgemacht",emoji:"🌾",cuisine:"High Protein",type:"fit",time:10,
+   macros:{kcal:430,prot:34,carb:44,fat:12},
+   ing:[{n:"Haferflocken",u:"g",p:60},{n:"Proteinpulver",u:"g",p:30},{n:"Mandeln",u:"g",p:20},{n:"Walnüsse",u:"g",p:15},{n:"Sonnenblumenkerne",u:"EL",p:1},{n:"Beeren (TK)",u:"g",p:100},{n:"Milch",u:"ml",p:150}],
+   steps:["Haferflocken, Nüsse, Kerne mischen.","Proteinpulver einrühren.","Mit kalter oder warmer Milch übergießen.","Beeren (aufgetaut) drauf.","Schnelle, proteinreiche Mahlzeit."]},
+
+  {id:247,name:"Hähnchenspieße & Joghurt-Dip",emoji:"🍢",cuisine:"Mediterran",type:"fit",time:25,
+   macros:{kcal:380,prot:46,carb:8,fat:14},
+   ing:[{n:"Hühnerbrust",u:"g",p:280},{n:"Griechischer Joghurt",u:"g",p:150},{n:"Knoblauch",u:"Zehen",p:2},{n:"Zitronensaft",u:"EL",p:2},{n:"Paprikapulver",u:"TL",p:1},{n:"Oregano",u:"TL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Hähnchen würfeln, mit Gewürzen marinieren.","Auf Spieße stecken.","Grillen oder in Grillpfanne 10–12 Min.","Joghurt mit Knoblauch und Zitrone zum Dip.","Mit Gemüse servieren."]},
+
+  {id:248,name:"Eier-Avocado-Toast High Protein",emoji:"🥑",cuisine:"High Protein",type:"fit",time:10,
+   macros:{kcal:420,prot:24,carb:28,fat:24},
+   ing:[{n:"Vollkornbrot",u:"Scheiben",p:2},{n:"Eier",u:"Stk",p:3},{n:"Avocado",u:"Stk",p:0.5},{n:"Kirschtomaten",u:"Stk",p:5},{n:"Chiliflocken",u:"Prisen",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Brot toasten.","Avocado zerdrücken, würzen.","Eier pochieren oder spiegeln.","Avocado auf Brot, Ei drauf.","Mit Tomaten, Chili, Salz abschließen."]},
+
+  {id:249,name:"Paprika-Hähnchen-Pasta Lean",emoji:"🍝",cuisine:"Italienisch",type:"fit",time:30,
+   macros:{kcal:470,prot:42,carb:44,fat:10},
+   ing:[{n:"Hühnerbrust",u:"g",p:220},{n:"Vollkornnudeln",u:"g",p:80},{n:"Paprika (rot)",u:"Stk",p:2},{n:"Tomaten (dose)",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:2},{n:"Basilikum",u:"Blätter",p:6},{n:"Olivenöl",u:"TL",p:1}],
+   steps:["Vollkornnudeln kochen.","Hähnchen würfeln, anbraten.","Paprika und Knoblauch dazu.","Tomaten einrühren, 10 Min köcheln.","Pasta in Soße, Basilikum drüber."]},
+
+  {id:250,name:"Mageres Rindfleisch-Gemüse-Soup",emoji:"🍲",cuisine:"High Protein",type:"fit",time:45,
+   macros:{kcal:380,prot:40,carb:22,fat:12},
+   ing:[{n:"Rindfleisch (mager)",u:"g",p:200},{n:"Karotten",u:"Stk",p:2},{n:"Sellerie",u:"Stk",p:1},{n:"Zwiebeln",u:"Stk",p:1},{n:"Tomatenmark",u:"EL",p:1},{n:"Gemüsebrühe",u:"ml",p:600},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Fleisch würfeln, scharf anbraten.","Gemüse würfeln dazu.","Tomatenmark einrühren.","Brühe aufgießen, 35 Min köcheln.","Mit Petersilie servieren."]}
+];
+
+// =====================================================================
+// MAHLZEITEN (Frühstück & Abendessen)
+// =====================================================================
+const MEALS = [
+  // ── FRÜHSTÜCK ──
+  {id:301,name:"Veganes Porridge mit Nüssen",emoji:"🌾",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:10,
+   ing:[{n:"Haferflocken",u:"g",p:80},{n:"Hafermilch",u:"ml",p:250},{n:"Banane",u:"Stk",p:1},{n:"Walnüsse",u:"g",p:20},{n:"Ahornsirup",u:"TL",p:1},{n:"Zimt",u:"TL",p:0.5}],
+   steps:["Haferflocken in Hafermilch 5 Min aufkochen.","Banane in Scheiben schneiden.","Mit Walnüssen und Ahornsirup toppen.","Zimt drüber, sofort servieren."]},
+
+  {id:302,name:"French Toast",emoji:"🍞",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:15,
+   ing:[{n:"Toastbrot (dick)",u:"Scheiben",p:3},{n:"Eier",u:"Stk",p:2},{n:"Milch",u:"ml",p:60},{n:"Zimt",u:"TL",p:0.5},{n:"Butter",u:"EL",p:1},{n:"Staubzucker",u:"EL",p:1},{n:"Beeren",u:"g",p:80}],
+   steps:["Eier mit Milch und Zimt verquirlen.","Brot einweichen.","In Butter goldbraun braten, je 2 Min.","Mit Staubzucker und Beeren servieren."]},
+
+  {id:303,name:"Smashed Avocado mit Ei",emoji:"🥑",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:10,
+   ing:[{n:"Avocado",u:"Stk",p:1},{n:"Eier",u:"Stk",p:2},{n:"Sauerteigbrot",u:"Scheiben",p:2},{n:"Limettensaft",u:"TL",p:1},{n:"Chiliflocken",u:"Prisen",p:1},{n:"Sesam",u:"TL",p:0.5}],
+   steps:["Brot toasten.","Avocado zerdrücken, mit Limette und Salz würzen.","Eier spiegeln oder pochieren.","Avocado auf Toast, Ei drauf.","Chili und Sesam drüber."]},
+
+  {id:304,name:"Joghurt-Granola-Bowl",emoji:"🍓",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:5,
+   ing:[{n:"Griechischer Joghurt",u:"g",p:200},{n:"Granola",u:"g",p:60},{n:"Erdbeeren",u:"g",p:100},{n:"Blaubeeren",u:"g",p:80},{n:"Honig",u:"TL",p:1},{n:"Minze",u:"Blätter",p:3}],
+   steps:["Joghurt in Schüssel geben.","Granola drüber.","Beeren schön anrichten.","Honig und Minze als Topping."]},
+
+  {id:305,name:"Spinat-Feta-Omelette",emoji:"🥚",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:12,
+   ing:[{n:"Eier",u:"Stk",p:3},{n:"Spinat",u:"g",p:60},{n:"Feta",u:"g",p:40},{n:"Butter",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Eier verquirlen, salzen.","Butter in Pfanne, Eier eingiessen.","Wenn halb gestockt: Spinat und Feta auf eine Hälfte.","Zusammenklappen, sofort servieren."]},
+
+  {id:306,name:"Bananenbrot (gesund)",emoji:"🍌",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:55,
+   ing:[{n:"Bananen (reif)",u:"Stk",p:3},{n:"Haferflocken",u:"g",p:150},{n:"Eier",u:"Stk",p:2},{n:"Honig",u:"EL",p:2},{n:"Backpulver",u:"TL",p:1},{n:"Zimt",u:"TL",p:0.5},{n:"Walnüsse",u:"g",p:40}],
+   steps:["Bananen zerdrücken.","Alle Zutaten mischen.","In Kastenform bei 180°C 40 Min backen.","Stäbchentest: sauber = fertig.","Abkühlen, in Scheiben schneiden."]},
+
+  {id:307,name:"Räucherlachs-Bagel",emoji:"🥯",cuisine:"Frühstück",mealType:"fruehstueck",type:"meat",time:10,
+   ing:[{n:"Bagel",u:"Stk",p:1},{n:"Frischkäse",u:"EL",p:3},{n:"Räucherlachs",u:"g",p:80},{n:"Rote Zwiebel",u:"Scheiben",p:3},{n:"Kapern",u:"TL",p:1},{n:"Gurke",u:"Scheiben",p:4},{n:"Dill",u:"Blätter",p:5}],
+   steps:["Bagel toasten.","Mit Frischkäse bestreichen.","Lachs drauf legen.","Zwiebeln, Kapern, Gurke, Dill drüber.","Sofort genießen."]},
+
+  {id:308,name:"Warme Banana Oats",emoji:"🍌",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:8,
+   ing:[{n:"Haferflocken",u:"g",p:80},{n:"Milch",u:"ml",p:200},{n:"Banane",u:"Stk",p:1},{n:"Erdnussbutter",u:"EL",p:1},{n:"Honig",u:"TL",p:1},{n:"Zimt",u:"TL",p:0.5}],
+   steps:["Haferflocken in Milch 3–4 Min kochen.","Banane zerdrücken, einrühren.","Erdnussbutter drauf.","Honig und Zimt zum Abschluss."]},
+
+  {id:309,name:"Vollkorntoast mit Rührei & Tomaten",emoji:"🍳",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:10,
+   ing:[{n:"Vollkorntoast",u:"Scheiben",p:2},{n:"Eier",u:"Stk",p:3},{n:"Kirschtomaten",u:"Stk",p:6},{n:"Schnittlauch",u:"EL",p:1},{n:"Butter",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Toast toasten.","Eier in Butter langsam stocken.","Tomaten halbiert kurz mitbraten.","Rührei auf Toast mit Schnittlauch."]},
+
+  {id:310,name:"Acai Bowl",emoji:"🫐",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:10,
+   ing:[{n:"Acai-Püree (TK)",u:"g",p:100},{n:"Banane",u:"Stk",p:0.5},{n:"Hafermilch",u:"ml",p:80},{n:"Granola",u:"g",p:40},{n:"Kokosflocken",u:"EL",p:1},{n:"Beeren mix",u:"g",p:100},{n:"Honig",u:"TL",p:1}],
+   steps:["Acai mit Banane und Milch mixen.","In Schüssel giessen.","Mit Granola, Kokosflocken und Beeren dekorieren.","Mit Honig beträufeln."]},
+
+  {id:311,name:"Shakshuka zum Frühstück",emoji:"🍳",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:20,
+   ing:[{n:"Eier",u:"Stk",p:3},{n:"Tomaten (dose)",u:"g",p:200},{n:"Paprika",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Kreuzkümmel",u:"TL",p:0.5},{n:"Paprikapulver",u:"TL",p:1},{n:"Brot",u:"Scheiben",p:2}],
+   steps:["Zwiebeln und Paprika in Öl anbraten.","Tomaten und Gewürze einrühren.","Mulden drücken, Eier einschlagen.","Deckel drauf, 5–7 Min.","Mit Brot servieren."]},
+
+  {id:312,name:"Heidelbeer-Quark-Pfannkuchen",emoji:"🫐",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:20,
+   ing:[{n:"Mehl",u:"g",p:120},{n:"Magerquark",u:"g",p:100},{n:"Eier",u:"Stk",p:2},{n:"Milch",u:"ml",p:100},{n:"Backpulver",u:"TL",p:1},{n:"Heidelbeeren",u:"g",p:100},{n:"Ahornsirup",u:"EL",p:2}],
+   steps:["Mehl, Quark, Eier, Milch, Backpulver verrühren.","Heidelbeeren unterheben.","In Pfanne goldbraun backen.","Mit Ahornsirup servieren."]},
+
+  {id:313,name:"Overnight Chia-Pudding",emoji:"🌙",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:5,
+   ing:[{n:"Chia-Samen",u:"EL",p:4},{n:"Kokosmilch",u:"ml",p:200},{n:"Vanille",u:"TL",p:0.5},{n:"Honig",u:"TL",p:1},{n:"Mango",u:"Stk",p:0.5},{n:"Himbeeren",u:"g",p:80}],
+   steps:["Chiasamen mit Kokosmilch, Vanille und Honig mischen.","Über Nacht in Kühlschrank.","Morgens: Mango und Himbeeren drauf.","Direkt essen oder noch rühren."]},
+
+  {id:314,name:"Croissant mit Schinken & Käse",emoji:"🥐",cuisine:"Frühstück",mealType:"fruehstueck",type:"meat",time:5,
+   ing:[{n:"Croissant",u:"Stk",p:1},{n:"Schinken",u:"Scheiben",p:2},{n:"Emmentaler",u:"Scheiben",p:1},{n:"Senf",u:"TL",p:0.5},{n:"Rucola",u:"g",p:20}],
+   steps:["Croissant aufschneiden.","Mit Senf bestreichen.","Schinken, Käse und Rucola einlegen.","Optional kurz im Ofen aufwärmen."]},
+
+  {id:315,name:"Grüner Smoothie Bowl",emoji:"🥝",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:8,
+   ing:[{n:"Spinat",u:"g",p:60},{n:"Banane (TK)",u:"Stk",p:1},{n:"Mango (TK)",u:"g",p:100},{n:"Hafermilch",u:"ml",p:100},{n:"Granola",u:"g",p:40},{n:"Kiwi",u:"Stk",p:1},{n:"Kokosflocken",u:"EL",p:1}],
+   steps:["Spinat, Banane, Mango, Milch mixen bis glatt.","In Schüssel giessen.","Mit Granola, Kiwi und Kokosflocken toppen.","Sofort essen."]},
+
+  {id:316,name:"Bauernfrühstück",emoji:"🍳",cuisine:"Frühstück",mealType:"fruehstueck",type:"meat",time:20,
+   ing:[{n:"Kartoffeln (gekocht)",u:"g",p:250},{n:"Speck",u:"g",p:80},{n:"Eier",u:"Stk",p:3},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Schnittlauch",u:"EL",p:1},{n:"Butter",u:"EL",p:1}],
+   steps:["Kartoffeln in Scheiben schneiden.","Speck und Zwiebeln in Butter anbraten.","Kartoffeln dazu, goldbraun braten.","Eier einschlagen, rühren bis gestockt.","Mit Schnittlauch servieren."]},
+
+  {id:317,name:"Matcha Latte & Reiswaffeln",emoji:"🍵",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:5,
+   ing:[{n:"Matchapulver",u:"TL",p:1},{n:"Hafermilch (heiß)",u:"ml",p:200},{n:"Honig",u:"TL",p:1},{n:"Reiswaffeln",u:"Stk",p:4},{n:"Mandelbutter",u:"EL",p:2},{n:"Banane",u:"Stk",p:1}],
+   steps:["Matcha mit heißem Wasser zu Paste rühren.","Hafermilch aufschäumen, mit Matcha mixen.","Honig nach Geschmack.","Reiswaffeln mit Mandelbutter und Bananenscheiben."]},
+
+  {id:318,name:"Ei-Muffins mit Gemüse",emoji:"🧁",cuisine:"Frühstück",mealType:"fruehstueck",type:"meat",time:25,
+   ing:[{n:"Eier",u:"Stk",p:6},{n:"Paprika",u:"Stk",p:0.5},{n:"Spinat",u:"g",p:50},{n:"Schinken",u:"g",p:60},{n:"Käse",u:"g",p:40},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Ofen auf 180°C vorheizen.","Muffinform einfetten.","Gemüse und Schinken würfeln.","Eier verquirlen, mit Gemüse mischen.","In Förmchen füllen, Käse drauf.","20 Min backen.","Hält 3 Tage im Kühlschrank – ideal zum Vorbereiten!"]},
+
+  {id:319,name:"Açaí Smoothie",emoji:"🫐",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:5,
+   ing:[{n:"Acai-Pulver",u:"EL",p:2},{n:"Banane",u:"Stk",p:1},{n:"Beeren mix (TK)",u:"g",p:150},{n:"Hafermilch",u:"ml",p:200},{n:"Honig",u:"TL",p:1}],
+   steps:["Alles in Mixer geben.","Cremig mixen.","In Glas füllen.","Sofort trinken."]},
+
+  {id:320,name:"Müsli mit Nüssen & Samen",emoji:"🌰",cuisine:"Frühstück",mealType:"fruehstueck",type:"vegi",time:5,
+   ing:[{n:"Haferflocken",u:"g",p:70},{n:"Haselnüsse",u:"g",p:20},{n:"Kürbiskerne",u:"EL",p:1},{n:"Leinsamen",u:"EL",p:1},{n:"Joghurt",u:"g",p:150},{n:"Beeren",u:"g",p:80},{n:"Honig",u:"TL",p:1}],
+   steps:["Haferflocken mit Nüssen und Kernen mischen.","Joghurt darüber.","Beeren und Honig drauf.","Sofort essen oder 5 Min ziehen lassen."]},
+
+  // ── ABENDESSEN ──
+  {id:401,name:"Spaghetti Aglio Olio Peperoncino",emoji:"🍝",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:20,
+   ing:[{n:"Spaghetti",u:"g",p:120},{n:"Knoblauch",u:"Zehen",p:5},{n:"Olivenöl (extra vergine)",u:"EL",p:5},{n:"Chiliflocken",u:"TL",p:0.5},{n:"Petersilie",u:"Bund",p:0.5},{n:"Parmesan",u:"g",p:40}],
+   steps:["Pasta in reichlich Salzwasser kochen.","Knoblauch und Chili in Olivenöl goldgelb braten.","Pasta abtropfen, Kochwasser aufheben.","Pasta in Pfanne, 4 EL Kochwasser, Petersilie.","Kräftig schwenken bis cremig.","Parmesan drüber."]},
+
+  {id:402,name:"Hühnersuppe vom Blech",emoji:"🍗",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:50,
+   ing:[{n:"Hähnchenkeulen",u:"Stk",p:2},{n:"Kartoffeln",u:"g",p:200},{n:"Karotten",u:"Stk",p:2},{n:"Zwiebeln",u:"Stk",p:1},{n:"Knoblauch",u:"Zehen",p:3},{n:"Rosmarin",u:"TL",p:1},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Alles auf Backblech verteilen.","Mit Öl und Gewürzen einreiben.","Bei 200°C 40 Min backen.","Mit Bratensaft beträufeln, 5 Min ruhen."]},
+
+  {id:403,name:"Gemüse-Risotto mit Ziegenkäse",emoji:"🧀",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:40,
+   ing:[{n:"Arborio Reis",u:"g",p:100},{n:"Ziegenkäse",u:"g",p:60},{n:"Zucchini",u:"Stk",p:1},{n:"Erbsen",u:"g",p:80},{n:"Schalotten",u:"Stk",p:2},{n:"Weißwein",u:"ml",p:80},{n:"Gemüsebrühe",u:"ml",p:500}],
+   steps:["Schalotten in Butter anschwitzen.","Reis rösten, mit Wein ablöschen.","Schöpferweise Brühe einrühren (18 Min).","Zucchini und Erbsen dazu.","Ziegenkäse einrühren."]},
+
+  {id:404,name:"Gebackene Süßkartoffel mit Topping",emoji:"🍠",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:50,
+   ing:[{n:"Süßkartoffeln (groß)",u:"Stk",p:1},{n:"Schwarze Bohnen",u:"g",p:100},{n:"Mais",u:"EL",p:3},{n:"Feta",u:"g",p:50},{n:"Joghurt",u:"EL",p:2},{n:"Limette",u:"Stk",p:0.5},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Süßkartoffel bei 200°C 40–50 Min backen.","Aufschneiden, Innen lockern.","Mit Bohnen, Mais, Feta belegen.","Joghurt-Limette-Dressing drüber.","Koriander garnieren."]},
+
+  {id:405,name:"Miso-Glasierter Auberginen",emoji:"🍆",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:30,
+   ing:[{n:"Auberginen",u:"Stk",p:2},{n:"Misopaste",u:"EL",p:2},{n:"Honig",u:"EL",p:1},{n:"Sojasoße",u:"EL",p:1},{n:"Sesamöl",u:"TL",p:1},{n:"Sesam",u:"TL",p:1},{n:"Frühlingszwiebeln",u:"Stk",p:2}],
+   steps:["Auberginen halbieren, einschneiden.","Miso, Honig, Sojasoße, Sesamöl mischen.","Auberginen damit bestreichen.","Im Ofen bei 200°C 20 Min backen.","Mit Sesam und Frühlingszwiebeln servieren."]},
+
+  {id:406,name:"Hähnchen Piccata",emoji:"🍗",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:25,
+   ing:[{n:"Hühnerbrust",u:"g",p:220},{n:"Kapern",u:"EL",p:2},{n:"Zitronensaft",u:"EL",p:2},{n:"Weißwein",u:"ml",p:80},{n:"Butter",u:"EL",p:2},{n:"Mehl",u:"EL",p:2},{n:"Petersilie",u:"EL",p:1}],
+   steps:["Hähnchen klopfen, in Mehl wenden.","In Butter goldbraun braten.","Herausnehmen.","Wein, Zitrone und Kapern in Pfanne aufkochen.","Butter einrühren bis Soße entsteht.","Über Hähnchen giessen, Petersilie drüber."]},
+
+  {id:407,name:"Linsen Bolognese",emoji:"🍝",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:40,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Rote Linsen",u:"g",p:120},{n:"Tomaten (dose)",u:"g",p:200},{n:"Karotten",u:"Stk",p:1},{n:"Sellerie",u:"Stk",p:0.5},{n:"Zwiebeln",u:"Stk",p:1},{n:"Tomatenmark",u:"EL",p:2},{n:"Rotwein",u:"ml",p:80}],
+   steps:["Gemüse fein würfeln, anbraten.","Tomatenmark rösten, Wein ablöschen.","Linsen und Tomaten dazu, 20 Min köcheln.","Pasta kochen.","Alles zusammen, mit Parmesan."]},
+
+  {id:408,name:"Garnelen-Knoblauch-Pasta",emoji:"🦐",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:20,
+   ing:[{n:"Linguine",u:"g",p:100},{n:"Garnelen",u:"g",p:200},{n:"Knoblauch",u:"Zehen",p:4},{n:"Chili",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:3},{n:"Zitronensaft",u:"EL",p:1},{n:"Petersilie",u:"EL",p:2}],
+   steps:["Pasta kochen.","Knoblauch und Chili in Öl anbraten.","Garnelen 2 Min je Seite.","Pasta, Zitrone und Petersilie dazu.","Kräftig schwenken."]},
+
+  {id:409,name:"Gebackener Blumenkohl Ganz",emoji:"🥦",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:55,
+   ing:[{n:"Blumenkohl (ganz)",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:3},{n:"Cumin",u:"TL",p:1},{n:"Paprikapulver",u:"TL",p:1},{n:"Knoblauchpulver",u:"TL",p:1},{n:"Joghurt",u:"g",p:100},{n:"Tahini",u:"EL",p:2}],
+   steps:["Blumenkohl ganz mit Gewürzen und Öl einreiben.","Bei 200°C 40–45 Min backen bis weich.","Joghurt mit Tahini zu Dip mischen.","Blumenkohl in Stücke brechen, mit Dip servieren."]},
+
+  {id:410,name:"Pho-Suppe schnell",emoji:"🍜",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:35,
+   ing:[{n:"Reisnudeln",u:"g",p:100},{n:"Rindfleisch (dünn)",u:"g",p:150},{n:"Hühnerbrühe",u:"ml",p:600},{n:"Ingwer",u:"cm",p:3},{n:"Sternanis",u:"Stk",p:2},{n:"Fischsoße",u:"EL",p:2},{n:"Sojasprossen",u:"g",p:60},{n:"Frühlingszwiebeln",u:"Stk",p:2}],
+   steps:["Brühe mit Ingwer und Sternanis 20 Min köcheln.","Mit Fischsoße abschmecken.","Nudeln kochen.","Dünnes Rindfleisch in heiße Brühe geben – kocht in 1 Min.","Mit Sprossen und Frühlingszwiebeln servieren."]},
+
+  {id:411,name:"Pizza Bianca mit Zucchini",emoji:"🍕",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:35,
+   ing:[{n:"Pizzateig",u:"g",p:250},{n:"Ricotta",u:"g",p:100},{n:"Zucchini",u:"Stk",p:1},{n:"Mozzarella",u:"g",p:100},{n:"Knoblauch",u:"Zehen",p:2},{n:"Rosmarin",u:"TL",p:0.5},{n:"Olivenöl",u:"EL",p:1}],
+   steps:["Ofen auf 250°C vorheizen.","Teig dünn ausrollen.","Mit Ricotta und Knoblauch bestreichen.","Zucchini in Scheiben und Mozzarella drauf.","8–10 Min backen.","Mit Rosmarin und Olivenöl fertigstellen."]},
+
+  {id:412,name:"Gebratene Ente mit Rotkraut",emoji:"🦆",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:60,
+   ing:[{n:"Entenbrust",u:"g",p:250},{n:"Rotkraut (fertig)",u:"g",p:200},{n:"Orangen",u:"Stk",p:1},{n:"Honig",u:"EL",p:1},{n:"Thymian",u:"TL",p:0.5},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Ente Haut einschneiden, kalt in Pfanne legen.","Langsam Fett auslassen (10 Min).","Wenden, 5 Min fertig braten.","Im Ofen bei 180°C 10 Min ruhen.","Rotkraut aufwärmen, mit Orangensaft verfeinern.","Mit Knödeln oder Kartoffeln servieren."]},
+
+  {id:413,name:"Zucchini-Carbonara",emoji:"🥒",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:25,
+   ing:[{n:"Spaghetti",u:"g",p:100},{n:"Zucchini",u:"Stk",p:2},{n:"Eier",u:"Stk",p:2},{n:"Parmesan",u:"g",p:50},{n:"Knoblauch",u:"Zehen",p:2},{n:"Olivenöl",u:"EL",p:2},{n:"Schwarzer Pfeffer",u:"TL",p:1}],
+   steps:["Pasta kochen.","Zucchini raspeln, mit Knoblauch in Öl braten bis golden.","Eier mit Parmesan und Pfeffer verrühren.","Pasta weg vom Herd in Zucchini.","Eimischung einrühren, Kochwasser dazu."]},
+
+  {id:414,name:"Mediterrane Fischpfanne",emoji:"🐟",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:30,
+   ing:[{n:"Lachsfilet",u:"g",p:200},{n:"Kirschtomaten",u:"Stk",p:10},{n:"Oliven",u:"EL",p:3},{n:"Kapern",u:"EL",p:1},{n:"Knoblauch",u:"Zehen",p:2},{n:"Weißwein",u:"ml",p:80},{n:"Olivenöl",u:"EL",p:2}],
+   steps:["Knoblauch in Öl anbraten.","Tomaten, Oliven, Kapern dazu.","Wein aufgießen, 5 Min köcheln.","Lachs einlegen, 8 Min bei niedriger Hitze.","Mit Brot oder Polenta servieren."]},
+
+  {id:415,name:"Kürbis-Gnocchi Sage Butter",emoji:"🎃",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:40,
+   ing:[{n:"Gnocchi",u:"g",p:300},{n:"Kürbispüree",u:"g",p:100},{n:"Butter",u:"EL",p:3},{n:"Salbei",u:"Blätter",p:6},{n:"Parmesan",u:"g",p:40},{n:"Walnüsse",u:"EL",p:2},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Gnocchi in Salzwasser kochen.","Butter mit Salbeiblättern bräunen.","Gnocchi in Salbei-Butter schwenken.","Kürbispüree einrühren.","Mit Parmesan und Walnüssen servieren."]},
+
+  {id:416,name:"Gefüllte Champignons",emoji:"🍄",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:35,
+   ing:[{n:"Portobello Champignons",u:"Stk",p:4},{n:"Hackfleisch",u:"g",p:150},{n:"Zwiebeln",u:"Stk",p:0.5},{n:"Knoblauch",u:"Zehen",p:2},{n:"Parmesan",u:"g",p:40},{n:"Petersilie",u:"EL",p:2},{n:"Olivenöl",u:"EL",p:1}],
+   steps:["Pilzstiele herausnehmen, fein hacken.","Mit Hackfleisch, Zwiebeln, Knoblauch braten.","Pilzköpfe mit Masse füllen.","Parmesan drüber.","Bei 190°C 20 Min backen."]},
+
+  {id:417,name:"Ceviche mit Tortillachips",emoji:"🐟",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:25,
+   ing:[{n:"Weißfisch (frisch)",u:"g",p:200},{n:"Limettensaft",u:"EL",p:6},{n:"Rote Zwiebel",u:"Stk",p:0.5},{n:"Koriander",u:"Bund",p:0.5},{n:"Chili",u:"Stk",p:0.5},{n:"Avocado",u:"Stk",p:0.5},{n:"Tortillachips",u:"g",p:60}],
+   steps:["Fisch in kleine Würfel schneiden.","Mit Limettensaft 15 Min marinieren (kocht ihn!)","Zwiebeln, Koriander, Chili fein hacken.","Alles vermengen.","Mit Avocado und Chips servieren."]},
+
+  {id:418,name:"Hähnchen-Kokos-Suppe",emoji:"🥥",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:30,
+   ing:[{n:"Hühnerbrust",u:"g",p:200},{n:"Kokosmilch",u:"ml",p:300},{n:"Hühnerbrühe",u:"ml",p:200},{n:"Zitronengras",u:"Stk",p:1},{n:"Ingwer",u:"cm",p:3},{n:"Champignons",u:"g",p:100},{n:"Limette",u:"Stk",p:1},{n:"Koriander",u:"Blätter",p:5}],
+   steps:["Zitronengras andrücken, mit Ingwer in Brühe köcheln.","Kokosmilch einrühren.","Hähnchen in Streifen und Pilze garen.","Mit Limette abschmecken.","Mit Koriander und Reis servieren."]},
+
+  {id:419,name:"Polenta mit Pilzragout",emoji:"🍄",cuisine:"Abendessen",mealType:"abendessen",type:"vegi",time:35,
+   ing:[{n:"Polenta",u:"g",p:100},{n:"Gemischte Pilze",u:"g",p:250},{n:"Schalotten",u:"Stk",p:2},{n:"Parmesan",u:"g",p:40},{n:"Butter",u:"EL",p:2},{n:"Rosmarin",u:"TL",p:0.5},{n:"Gemüsebrühe",u:"ml",p:400}],
+   steps:["Polenta in Brühe 5 Min kochen, Butter und Parmesan einrühren.","Pilze mit Schalotten und Rosmarin anbraten.","Polenta in Teller, Pilzragout drüber."]},
+
+  {id:420,name:"Ofenlachs mit Fenchel & Zitrone",emoji:"🐟",cuisine:"Abendessen",mealType:"abendessen",type:"meat",time:30,
+   ing:[{n:"Lachsfilet",u:"g",p:220},{n:"Fenchel",u:"Stk",p:1},{n:"Zitronen",u:"Stk",p:1},{n:"Olivenöl",u:"EL",p:2},{n:"Dill",u:"EL",p:1},{n:"Kapern",u:"EL",p:1},{n:"Salz & Pfeffer",u:"",p:0}],
+   steps:["Fenchel in Scheiben auf Backblech.","Lachs drauf legen.","Mit Öl, Zitronenscheiben und Dill belegen.","Bei 180°C 20 Min backen.","Mit Kapern und frischem Dill servieren."]}
+];
+
+// ───────────────────────────────────────────────
+// STATE
+// ───────────────────────────────────────────────
+let filter = 'all';
+let query = '';
+let favs = new Set(JSON.parse(localStorage.getItem('wthsie2_favs') || '[]'));
+let persons = 2;
+let curRecipe = null;
+let onFavsView = false;
+let onFitView = false;
+let onMealView = false;
+let mealTab = 'fruehstueck';
+let copyTimer = null;
+
+function saveFavs() { localStorage.setItem('wthsie2_favs', JSON.stringify([...favs])); }
+
+function allRecipes() { return [...R, ...FIT, ...MEALS]; }
+
+function filtered() {
+  if (filter === 'fit') return FIT;
+  return R.filter(r => {
+    const typeOk = filter === 'all' || r.type === filter;
+    const q = query.toLowerCase().trim();
+    const matchQ = !q || r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q)
+      || r.ing.some(i => i.n.toLowerCase().includes(q));
+    return typeOk && matchQ;
+  });
+}
+
+function findRecipe(id) { return allRecipes().find(r => r.id === id); }
+
+// ───────────────────────────────────────────────
+// RENDER CARDS
+// ───────────────────────────────────────────────
+function renderCards(list, gridId) {
+  const g = document.getElementById(gridId);
+  g.innerHTML = list.map(r => {
+    const on = favs.has(r.id);
+    const isFit = r.type === 'fit';
+    const macroHtml = isFit && r.macros ? `
+      <div class="macro-row">
+        <div class="macro-pill"><div class="macro-val protein">${r.macros.prot}g</div><div class="macro-lbl">Protein</div></div>
+        <div class="macro-pill"><div class="macro-val">${r.macros.kcal}</div><div class="macro-lbl">kcal</div></div>
+        <div class="macro-pill"><div class="macro-val" style="color:#fb923c">${r.macros.carb}g</div><div class="macro-lbl">Carbs</div></div>
+        <div class="macro-pill"><div class="macro-val" style="color:#a78bfa">${r.macros.fat}g</div><div class="macro-lbl">Fett</div></div>
+      </div>` : '';
+    return `<div class="recipe-card" onclick="handleCardClick(event,${r.id})">
+      <div class="card-top">
+        <div class="card-emoji-wrap">${r.emoji}</div>
+        <div class="card-actions">
+          <button class="card-fav-btn ${on ? 'fav-on' : ''}" onclick="toggleFav(event,${r.id})">${on ? '⭐' : '☆'}</button>
+          <span class="card-time">⏱ ${r.time}m</span>
+        </div>
+      </div>
+      <div class="card-name">${r.name}</div>
+      <div class="card-meta">
+        <span class="tag ${isFit ? 'tag-fit' : r.type === 'meat' ? 'tag-meat' : 'tag-vegi'}">${isFit ? '💪 Fitness' : r.type === 'meat' ? 'Fleisch' : 'Vegi'}</span>
+        <span class="card-cuisine">${r.cuisine}</span>
+      </div>
+      ${macroHtml}
+    </div>`;
+  }).join('');
+}
+
+function render() {
+  const f = filtered();
+  renderCards(f, 'recipeGrid');
+  document.getElementById('emptyState').style.display = f.length ? 'none' : 'block';
+  document.getElementById('countNum').textContent = filter === 'fit' ? FIT.length : filter === 'meal' ? MEALS.filter(r => r.mealType === mealTab).length : f.length;
+
+  const favList = allRecipes().filter(r => favs.has(r.id));
+  renderCards(favList, 'favGrid');
+  document.getElementById('noFavsMsg').style.display = favList.length ? 'none' : 'block';
+  document.getElementById('favBadge').textContent = favs.size;
+
+  renderCards(FIT, 'fitGrid');
+  renderCards(MEALS.filter(r => r.mealType === mealTab), 'mealGrid');
+}
+
+// ───────────────────────────────────────────────
+// FILTER / SEARCH
+// ───────────────────────────────────────────────
+function setFilter(f) {
+  filter = f;
+  ['all','meat','vegi','fit','meal'].forEach(x => {
+    const b = document.getElementById('btn-' + x);
+    if (b) b.className = `type-btn t-${x}${f === x ? ' active' : ''}`;
+  });
+  const isFit = f === 'fit';
+  const isMeal = f === 'meal';
+  onFitView = isFit;
+  onMealView = isMeal;
+  document.getElementById('browseView').classList.toggle('active', !onFavsView && !isFit && !isMeal);
+  document.getElementById('favsView').classList.toggle('active', onFavsView);
+  document.getElementById('fitView').classList.toggle('active', isFit && !onFavsView);
+  document.getElementById('mealView').classList.toggle('active', isMeal && !onFavsView);
+  render();
+}
+
+function setMealTab(tab) {
+  mealTab = tab;
+  ['fruehstueck','abendessen'].forEach(x => {
+    const b = document.getElementById('mtab-' + x);
+    if (b) b.className = `meal-tab${tab === x ? ' active' : ''}`;
+  });
+  render();
+}
+
+function handleSearch() {
+  query = document.getElementById('searchInput').value;
+  render();
+}
+
+// ───────────────────────────────────────────────
+// SHUFFLE
+// ───────────────────────────────────────────────
+function doShuffle() {
+  let pool;
+  if (filter === 'fit') pool = FIT;
+  else if (filter === 'meal') pool = MEALS.filter(r => r.mealType === mealTab);
+  else pool = filtered();
+  if (!pool.length) return;
+  document.getElementById('shuffleOverlay').classList.add('open');
+  setTimeout(() => {
+    document.getElementById('shuffleOverlay').classList.remove('open');
+    openModal(pool[Math.floor(Math.random() * pool.length)]);
+  }, 900);
+}
+
+// ───────────────────────────────────────────────
+// FAVORITES
+// ───────────────────────────────────────────────
+function toggleFav(e, id) {
+  e.stopPropagation();
+  favs.has(id) ? favs.delete(id) : favs.add(id);
+  saveFavs();
+  render();
+  if (curRecipe?.id === id) updateModalFavBtn();
+}
+
+function toggleFavsView() {
+  onFavsView = !onFavsView;
+  if (onFavsView) { onFitView = false; onMealView = false; }
+  document.getElementById('browseView').classList.toggle('active', !onFavsView && !onFitView && !onMealView);
+  document.getElementById('favsView').classList.toggle('active', onFavsView);
+  document.getElementById('fitView').classList.toggle('active', onFitView && !onFavsView);
+  document.getElementById('mealView').classList.toggle('active', onMealView && !onFavsView);
+  const btn = document.getElementById('favBtn');
+  btn.classList.toggle('is-active', onFavsView);
+  btn.innerHTML = onFavsView
+    ? `<span>←</span> <span>Alle Gerichte</span>`
+    : `<span>⭐</span> <span>Favoriten</span> <span class="fav-badge" id="favBadge">${favs.size}</span>`;
+  render();
+}
+
+function updateModalFavBtn() {
+  const btn = document.getElementById('mFavBtn');
+  if (!btn || !curRecipe) return;
+  const on = favs.has(curRecipe.id);
+  btn.className = `modal-fav-toggle ${on ? 'on' : ''}`;
+  btn.innerHTML = on ? '⭐ Gespeichert' : '☆ Zu Favoriten';
+}
+
+// ───────────────────────────────────────────────
+// MODAL
+// ───────────────────────────────────────────────
+function handleCardClick(e, id) {
+  if (e.target.classList.contains('card-fav-btn')) return;
+  openModal(findRecipe(id));
+}
+
+function openModal(r) {
+  curRecipe = r;
+  persons = 2;
+  buildModal();
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  curRecipe = null;
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+function ingList() {
+  return curRecipe.ing.map(i => ({...i, qty: i.p ? +(i.p * persons).toFixed(1) : 0}));
+}
+
+function shoppingText(list) {
+  let t = `🛒 ${curRecipe.name}\n(${persons} Person${persons !== 1 ? 'en' : ''})\n${'─'.repeat(30)}\n`;
+  list.forEach(i => { t += `□ ${i.n}${i.qty ? '  →  ' + i.qty + (i.u ? ' ' + i.u : '') : ''}\n`; });
+  t += `${'─'.repeat(30)}\n⏱ ~${curRecipe.time} Min`;
+  return t;
+}
+
+function buildModal() {
+  const r = curRecipe;
+  const list = ingList();
+  const on = favs.has(r.id);
+  const txt = shoppingText(list);
+  const isFit = r.type === 'fit';
+
+  const macrosHtml = isFit && r.macros ? `
+    <div>
+      <div class="section-head">Makros pro Portion</div>
+      <div class="modal-macros">
+        <div class="modal-macro-item"><div class="modal-macro-val prot">${r.macros.prot}g</div><div class="modal-macro-lbl">Protein</div></div>
+        <div class="modal-macro-item"><div class="modal-macro-val kcal">${r.macros.kcal}</div><div class="modal-macro-lbl">kcal</div></div>
+        <div class="modal-macro-item"><div class="modal-macro-val carb">${r.macros.carb}g</div><div class="modal-macro-lbl">Carbs</div></div>
+        <div class="modal-macro-item"><div class="modal-macro-val fat">${r.macros.fat}g</div><div class="modal-macro-lbl">Fett</div></div>
+      </div>
+    </div>` : '';
+
+  document.getElementById('modalInner').innerHTML = `
+    <div class="modal-hero">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <span class="modal-emoji-big">${r.emoji}</span>
+      <div class="modal-dish-name">${r.name}</div>
+      <div class="modal-tags">
+        <span class="tag ${isFit ? 'tag-fit' : r.type === 'meat' ? 'tag-meat' : 'tag-vegi'}">${isFit ? '💪 Fitness' : r.type === 'meat' ? 'Fleisch' : 'Vegetarisch'}</span>
+        <span class="modal-tag modal-tag-time">⏱ ${r.time} Minuten</span>
+        <span class="modal-tag modal-tag-cuisine">📍 ${r.cuisine}</span>
+      </div>
+    </div>
+
+    <div class="modal-body">
+
+      ${macrosHtml}
+
+      <div class="persons-row">
+        <span class="persons-label">👥 Personen</span>
+        <div class="persons-ctrl">
+          <button class="p-btn" onclick="changeP(-1)">−</button>
+          <span class="p-num" id="pNum">${persons}</span>
+          <button class="p-btn" onclick="changeP(1)">+</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head">Zutaten für <span id="pLabel">${persons} Person${persons !== 1 ? 'en' : ''}</span></div>
+        <div class="ingredients-grid" id="ingGrid">
+          ${list.map(i => `
+            <div class="ing-item">
+              <span class="ing-dot"></span>
+              <span class="ing-name">${i.n}</span>
+              ${i.qty ? `<span class="ing-qty">${i.qty}${i.u ? ' ' + i.u : ''}</span>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head">Zubereitung</div>
+        <div class="steps-list">
+          ${r.steps.map((s,i) => `
+            <div class="step-item">
+              <span class="step-num">${i+1}</span>
+              <span class="step-text">${s}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="shop-box">
+        <div class="shop-box-header">
+          <span class="section-head" style="margin:0">📋 Einkaufsliste</span>
+          <button class="copy-btn" id="copyBtn" onclick="doCopy()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Kopieren
+          </button>
+        </div>
+        <div class="shop-preview" id="shopPreview">${txt.replace(/\n/g,'<br>')}</div>
+      </div>
+
+      <button class="modal-fav-toggle ${on ? 'on' : ''}" id="mFavBtn" onclick="toggleFav(event,${r.id})">
+        ${on ? '⭐ Gespeichert' : '☆ Zu Favoriten'}
+      </button>
+
+    </div>`;
+}
+
+function changeP(d) {
+  persons = Math.max(1, Math.min(12, persons + d));
+  document.getElementById('pNum').textContent = persons;
+  document.getElementById('pLabel').textContent = `${persons} Person${persons !== 1 ? 'en' : ''}`;
+  const list = ingList();
+  document.getElementById('ingGrid').innerHTML = list.map(i => `
+    <div class="ing-item">
+      <span class="ing-dot"></span>
+      <span class="ing-name">${i.n}</span>
+      ${i.qty ? `<span class="ing-qty">${i.qty}${i.u ? ' ' + i.u : ''}</span>` : ''}
+    </div>`).join('');
+  document.getElementById('shopPreview').innerHTML = shoppingText(list).replace(/\n/g,'<br>');
+}
+
+function doCopy() {
+  navigator.clipboard.writeText(shoppingText(ingList())).then(() => {
+    const b = document.getElementById('copyBtn');
+    b.classList.add('done');
+    b.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Kopiert!`;
+    clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      b.classList.remove('done');
+      b.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Kopieren`;
+    }, 2500);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+render();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(r => console.log('SW registered'))
+      .catch(e => console.log('SW error', e));
+  });
+}
+</script>
+</body>
+</html>
